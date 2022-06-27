@@ -1,6 +1,10 @@
 
-import React from 'react';
-
+import React, { useEffect } from 'react';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+} from "react-router-dom";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
@@ -18,7 +22,15 @@ import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Container from '@mui/material/Container';
-import SignIn from './SignIn';
+import SignIn from './Auth/SignIn';
+import Home from './Pages/Home';
+import { ProtectedRoute } from './Auth/ProtectedRoute';
+import MonitorAdd from './Pages/MonitorAdd';
+import MonitorView from './Pages/MonitorView';
+import Header from './Components/Header';
+import Monitor from './Pages/Monitor';
+import SignOut from './Auth/SignOut';
+import Search from './Pages/Search';
 
 const brownTheme = createTheme({
   palette: {
@@ -55,7 +67,37 @@ function App() {
   return (
     <ThemeProvider theme={brownTheme}>
       <CssBaseline />
-      <SignIn />
+      <Header />
+      <Routes>
+        <Route path="" element={<Home />} />
+        <Route path="search" element={<Search />} />
+        <Route
+          path="monitor"
+          element={
+            <ProtectedRoute >
+              <Monitor />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="monitor/add"
+          element={
+            <ProtectedRoute >
+              <MonitorAdd />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="monitor/view"
+          element={
+            <ProtectedRoute >
+              <MonitorView />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="signin" element={<SignIn />} />
+        <Route path="signout" element={<SignOut />} />
+      </Routes>
     </ThemeProvider>
   );
 }

@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
@@ -20,27 +20,52 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Container from '@mui/material/Container';
 import { getAuth, sendSignInLinkToEmail } from "firebase/auth";
 import { isSignInWithEmailLink, signInWithEmailLink } from "firebase/auth";
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 
 
 
-function Copyright(props: any) {
-    return (
-        <Typography variant="body2" color="text.secondary" align="center" {...props}>
-            {'Copyright © '}
-            <Link color="inherit" href="https://schniff.com/">
-                The Schniffers
-            </Link>{' '}
-            {new Date().getFullYear()}
-            {'.'}
-        </Typography>
-    );
-}
 
 
 export default function SignIn() {
     const auth = getAuth();
+    let navigate = useNavigate()
+    const [checkingStatus, setCheckingStatus] = useState(true);
+    const [emailSent, setEmailSent] = useState(false);
+    const [loading, setLoading] = useState(false)
+
+    const [loggedIn, setLoggedIn] = useState(false);
+
+    let location = useLocation()
+    const [searchParams, setSearchParams] = useSearchParams();
+
+
+    const redirect = () => {
+        let target = searchParams.get("redirect")
+        console.log(target)
+        if (target !== null) {
+            navigate(target)
+        }
+
+    }
 
     useEffect(() => {
+        const unsubscribe = auth.onAuthStateChanged((user) => { // detaching the listener
+            if (user) {
+                // ...your code to handle authenticated users. 
+                setLoggedIn(true)
+            } else {
+                setLoggedIn(false)
+
+                // No user is signed in...code to handle unauthenticated users. 
+            }
+            setCheckingStatus(false)
+        });
+        return () => unsubscribe(); // unsubscribing from the listener when the component is unmounting. 
+    }, []);
+
+
+    useEffect(() => {
+        console.log(isSignInWithEmailLink(auth, window.location.href))
         if (isSignInWithEmailLink(auth, window.location.href)) {
             // Additional state parameters can also be passed via URL.
             // This can be used to continue the user's intended action before triggering
@@ -49,10 +74,11 @@ export default function SignIn() {
             // the flow on the same device where they started it.
             let email = window.localStorage.getItem('emailForSignIn');
             if (!email) {
+
+                redirect()
                 // User opened the link on a different device. To prevent session fixation
                 // attacks, ask the user to provide the associated email again. For example:
-                email = window.prompt('You must log in from the same device you started the process on');
-                return
+                // email = window.prompt('You must log in from the same device you started the process on');
             }
             // The client SDK will parse the code from the link for you.
             signInWithEmailLink(auth, email!, window.location.href)
@@ -60,6 +86,7 @@ export default function SignIn() {
                     // Clear email from storage.
                     window.localStorage.removeItem('emailForSignIn');
                     console.log(result)
+                    redirect()
                     // You can access the new user via result.user
                     // Additional user info profile not available via:
                     // result.additionalUserInfo.profile == null
@@ -70,14 +97,19 @@ export default function SignIn() {
                     console.log(error)
                     // Some error occurred, you can inspect the code: error.code
                     // Common errors could be invalid email and invalid or expired OTPs.
-                });
+                })
+                .finally(() => {
+                    setCheckingStatus(false)
+                })
         }
     }, [])
 
+    console.log(location.search)
+    let target = `http://localhost:3000/signin${location.search}`
     const actionCodeSettings = {
         // URL you want to redirect back to. The domain (www.example.com) for this
         // URL must be in the authorized domains list in the Firebase Console.
-        url: 'http://localhost:3000/signin',
+        url: target,
         // This must be true.
         handleCodeInApp: true,
         // iOS: {
@@ -92,6 +124,7 @@ export default function SignIn() {
     };
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        setLoading(true)
         event.preventDefault();
         const data = new FormData(event.currentTarget);
         console.log({
@@ -112,18 +145,34 @@ export default function SignIn() {
                 // if they open the link on the same device.
                 console.log("yo")
                 window.localStorage.setItem('emailForSignIn', email);
-                // ...
+                setEmailSent(true)
             })
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
                 console.log(error)
-                // ...
-            });
+            })
+            .finally(() => {
+                setLoading(false)
+            })
 
         console.log("sent email")
 
     };
+
+    if (checkingStatus) {
+        return <div>Authorising</div>
+    }
+
+
+
+    if (loggedIn) {
+        redirect()
+    }
+
+    if (emailSent) {
+        return <div>Email sent. Click link to log in.</div>
+    }
 
     return (
         <Container component="main" maxWidth="xs">
@@ -157,6 +206,7 @@ export default function SignIn() {
                         fullWidth
                         variant="contained"
                         color="secondary"
+                        disabled={loading}
                         sx={{ mt: 3, mb: 2 }}
                     >
                         Sign In
@@ -175,7 +225,6 @@ export default function SignIn() {
                     </Grid>
                 </Box>
             </Box>
-            <Copyright sx={{ mt: 8, mb: 4 }} />
         </Container>
     );
 }
