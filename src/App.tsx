@@ -31,6 +31,7 @@ import Header from './Components/Header';
 import Monitor from './Pages/Monitor';
 import SignOut from './Auth/SignOut';
 import Search from './Pages/Search';
+import Profile from './Pages/Profile';
 
 const brownTheme = createTheme({
   palette: {
@@ -58,7 +59,13 @@ const brownTheme = createTheme({
     // two indexes within its tonal palette.
     // E.g., shift from Red 500 to Red 300 or Red 700.
     // tonalOffset: 0.3,
-  }
+  },
+  typography: {
+    allVariants: {
+      fontFamily: 'monospace',
+      textTransform: 'none',
+    },
+  },
 })
 
 
@@ -92,6 +99,14 @@ function App() {
           element={
             <ProtectedRoute >
               <MonitorView />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="profile"
+          element={
+            <ProtectedRoute >
+              <Profile />
             </ProtectedRoute>
           }
         />

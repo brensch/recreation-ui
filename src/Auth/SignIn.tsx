@@ -21,7 +21,8 @@ import Container from '@mui/material/Container';
 import { getAuth, sendSignInLinkToEmail } from "firebase/auth";
 import { isSignInWithEmailLink, signInWithEmailLink } from "firebase/auth";
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-
+import Snackbar from '@mui/material/Snackbar';
+import MuiAlert, { AlertProps } from '@mui/material/Alert';
 
 
 
@@ -32,32 +33,32 @@ export default function SignIn() {
     const [checkingStatus, setCheckingStatus] = useState(true);
     const [emailSent, setEmailSent] = useState(false);
     const [loading, setLoading] = useState(false)
+    const [signingInFromEmail, setSigningInFromEmail] = useState(false);
 
     const [loggedIn, setLoggedIn] = useState(false);
+    const [open, setOpen] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     let location = useLocation()
     const [searchParams, setSearchParams] = useSearchParams();
+    let redirectTarget = searchParams.get("redirect")
 
 
     const redirect = () => {
-        let target = searchParams.get("redirect")
-        console.log(target)
-        if (target !== null) {
-            navigate(target)
+
+        if (redirectTarget !== null) {
+            navigate(redirectTarget)
+            return
         }
+        navigate("/")
+
+
 
     }
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => { // detaching the listener
-            if (user) {
-                // ...your code to handle authenticated users. 
-                setLoggedIn(true)
-            } else {
-                setLoggedIn(false)
-
-                // No user is signed in...code to handle unauthenticated users. 
-            }
+            setLoggedIn(!!user)
             setCheckingStatus(false)
         });
         return () => unsubscribe(); // unsubscribing from the listener when the component is unmounting. 
@@ -67,6 +68,8 @@ export default function SignIn() {
     useEffect(() => {
         console.log(isSignInWithEmailLink(auth, window.location.href))
         if (isSignInWithEmailLink(auth, window.location.href)) {
+            // this is used to stop the login page flashing up while the redirect takes its sweet arse time.
+            setSigningInFromEmail(true)
             // Additional state parameters can also be passed via URL.
             // This can be used to continue the user's intended action before triggering
             // the sign-in operation.
@@ -76,6 +79,7 @@ export default function SignIn() {
             if (!email) {
 
                 redirect()
+                return
                 // User opened the link on a different device. To prevent session fixation
                 // attacks, ask the user to provide the associated email again. For example:
                 // email = window.prompt('You must log in from the same device you started the process on');
@@ -87,6 +91,7 @@ export default function SignIn() {
                     window.localStorage.removeItem('emailForSignIn');
                     console.log(result)
                     redirect()
+                    return
                     // You can access the new user via result.user
                     // Additional user info profile not available via:
                     // result.additionalUserInfo.profile == null
@@ -95,17 +100,16 @@ export default function SignIn() {
                 })
                 .catch((error) => {
                     console.log(error)
+                    setError(error.toString())
+                    setOpen(true)
                     // Some error occurred, you can inspect the code: error.code
                     // Common errors could be invalid email and invalid or expired OTPs.
-                })
-                .finally(() => {
-                    setCheckingStatus(false)
                 })
         }
     }, [])
 
-    console.log(location.search)
-    let target = `http://localhost:3000/signin${location.search}`
+
+    let target = `${window.location.origin}/signin${location.search}`
     const actionCodeSettings = {
         // URL you want to redirect back to. The domain (www.example.com) for this
         // URL must be in the authorized domains list in the Firebase Console.
@@ -150,28 +154,68 @@ export default function SignIn() {
             .catch((error) => {
                 const errorCode = error.code;
                 const errorMessage = error.message;
-                console.log(error)
+                console.log(errorMessage)
+                setError(errorMessage)
+                setOpen(true)
             })
             .finally(() => {
                 setLoading(false)
             })
 
-        console.log("sent email")
 
     };
 
+    const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpen(false);
+    };
+
     if (checkingStatus) {
-        return <div>Authorising</div>
+
+        return <Box
+            sx={{
+                marginTop: 8,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+            }}
+        >
+            <Typography variant="h5" component="h2" align={"center"} height={100}> Authorising.</Typography>
+        </Box>
     }
 
+    if (signingInFromEmail) {
 
+        return <Box
+            sx={{
+                marginTop: 8,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+            }}
+        >
+            <Typography variant="h5" component="h2" align={"center"} height={100}> Logging you in.</Typography>
+        </Box>
+    }
 
     if (loggedIn) {
         redirect()
     }
 
     if (emailSent) {
-        return <div>Email sent. Click link to log in.</div>
+        return <Box
+            sx={{
+                marginTop: 8,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+            }}
+        >
+            <Typography variant="h5" component="h2" align={"center"} height={100}> An email has been sent to you with a link to log in.</Typography>
+        </Box>
     }
 
     return (
@@ -184,16 +228,12 @@ export default function SignIn() {
                     alignItems: 'center',
                 }}
             >
-                <Avatar sx={{ m: 1, bgcolor: 'primary.main' }}>
-                    <LockOutlinedIcon />
-                </Avatar>
-                <Typography component="h1" variant="h5">
-                    Schniffer
-                </Typography>
+                <Typography variant="h5" component="h2" align={"center"} height={100}> We need to know who you are to do this.</Typography>
+
+
                 <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                     <TextField
                         margin="normal"
-                        required
                         fullWidth
                         id="email"
                         label="Email Address"
@@ -211,22 +251,24 @@ export default function SignIn() {
                     >
                         Sign In
                     </Button>
-                    <Grid container>
-                        <Grid item xs>
-                            <Link href="#" variant="body2">
-                                Forgot password?
-                            </Link>
-                        </Grid>
-                        <Grid item>
-                            <Link href="#" variant="body2">
-                                {"Don't have an account? Sign Up"}
-                            </Link>
-                        </Grid>
-                    </Grid>
+
                 </Box>
+                <Typography variant="body1" component="h2" align={"center"} height={100}>Passwords and signing up are a pain. We email you a link to log in. It's easier this way trust me. </Typography>
+
             </Box>
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleClose}>
+                <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                    {error}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 }
 
 
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
+    props,
+    ref,
+) {
+    return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});

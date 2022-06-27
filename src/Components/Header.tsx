@@ -11,10 +11,24 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import HolidayVillageIcon from '@mui/icons-material/HolidayVillage';
+// import TentIcon from '@mui/icons-material/HolidayVillage';
 import FaceIcon from '@mui/icons-material/Face';
 import { useNavigate } from 'react-router-dom';
 import { getAuth } from 'firebase/auth';
+import SvgIcon, { SvgIconProps } from '@mui/material/SvgIcon';
+import { Icon } from '@mui/material';
+import { ReactComponent as Logo } from '../logo.svg';
+
+
+function TentIcon(props: SvgIconProps) {
+    return (
+        <SvgIcon {...props}>
+            <Logo />
+        </SvgIcon>
+    );
+}
+
+
 
 const pages = ['search', 'monitor'];
 const settings = ['profile', 'signout'];
@@ -61,19 +75,20 @@ export default () => {
     };
 
     return (
-        <AppBar position="static"
+        <AppBar position="static" elevation={0}
             sx={{
                 color: 'secondary.main',
             }}
         >
             <Container maxWidth="xl">
                 <Toolbar disableGutters >
-                    <HolidayVillageIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+                    <TentIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} onClick={() => navigate("")} />
                     <Typography
                         variant="h6"
                         noWrap
                         component="a"
-                        href="/"
+                        onClick={() => navigate("")}
+                        // href="/"
                         sx={{
                             mr: 2,
                             display: { xs: 'none', md: 'flex' },
@@ -127,7 +142,7 @@ export default () => {
                             ))}
                         </Menu>
                     </Box>
-                    <HolidayVillageIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+                    <TentIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
                     <Typography
                         variant="h5"
                         noWrap
