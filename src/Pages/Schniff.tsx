@@ -7,6 +7,10 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
+import { doc, setDoc } from "firebase/firestore";
+import { db } from '..';
+import { getAuth } from 'firebase/auth';
+
 
 export default () => {
     const [groundID, setGroundID] = useState<string | null>(null);
@@ -14,9 +18,34 @@ export default () => {
     const [end, setEnd] = useState<Date | null>(null);
     const [loading, setLoading] = useState(false);
 
+    let auth = getAuth()
+
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setGroundID(event.target.value);
     };
+
+    function getDates(startDate: Date, stopDate: Date) {
+        var dateArray = new Array();
+        var currentDate = startDate;
+        while (currentDate <= stopDate) {
+            dateArray.push(new Date(currentDate));
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        return dateArray;
+    }
+
+    const submitSchniffRequest = async () => {
+        // if (start === null || end === null) {
+        //     return
+        // }
+
+        await setDoc(doc(db, "users", auth.currentUser!.uid), {
+            name: "Los Angeles",
+            state: "CA",
+            country: "USA"
+        })
+        // console.log(getDates(start, end))
+    }
 
     return (
         <Container component="main" maxWidth="sm" sx={{
@@ -35,12 +64,12 @@ export default () => {
                 noValidate
                 autoComplete="off"
             > */}
-            <Typography variant="body2" component="h2" align={"center"} height={100}> Find the campsite you want on recreation.gov.<br />The number we need is what's after 'campgrounds' in the URL.<br />For example: <Link href="https://www.recreation.gov/camping/campgrounds/232450" target="_blank">www.recreation.gov/camping/campgrounds/<b><i>232450</i></b></Link></Typography>
+
 
             <TextField
                 id="campground-url"
-                label="Campground ID"
-                placeholder="Get this from recreation.gov"
+                label="recreation.gov campground URL"
+                placeholder="eg: https://www.recreation.gov/camping/campgrounds/232450"
                 value={groundID}
                 onChange={handleChange}
                 variant="standard"
@@ -67,12 +96,11 @@ export default () => {
                 variant="contained"
                 color="secondary"
                 disabled={loading}
+                onClick={() => submitSchniffRequest()}
                 sx={{ m: 1 }}
             >
-                Monitor
+                Schniff
             </Button>
-
-            <Typography variant="body2" component="h2" align={"center"} height={100}> Note I will do this so you can search campgrounds from in here soon.</Typography>
 
             {/* </Box> */}
         </Container>

@@ -30,7 +30,7 @@ function TentIcon(props: SvgIconProps) {
 
 
 
-const pages = ['search', 'monitor'];
+const pages = ['explanation', 'schniff'];
 const settings = ['profile', 'signout'];
 
 export default () => {
@@ -87,7 +87,7 @@ export default () => {
                         variant="h6"
                         noWrap
                         component="a"
-                        onClick={() => navigate("")}
+                        onClick={() => navigate("/")}
                         // href="/"
                         sx={{
                             mr: 2,
@@ -142,12 +142,13 @@ export default () => {
                             ))}
                         </Menu>
                     </Box>
-                    <TentIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
+                    <TentIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} onClick={() => navigate("/")}
+                    />
                     <Typography
                         variant="h5"
                         noWrap
                         component="a"
-                        href=""
+                        onClick={() => navigate("/")}
                         sx={{
                             mr: 2,
                             display: { xs: 'flex', md: 'none' },

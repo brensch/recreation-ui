@@ -30,6 +30,8 @@ import { useNavigate } from 'react-router-dom';
 
 export default () => {
 
+    let navigate = useNavigate()
+
     return (
         <Container component="main" maxWidth="md" sx={{
             padding: 1,
@@ -39,10 +41,29 @@ export default () => {
             flexDirection: "column",
 
         }}>
-            <Typography variant="h4" component="h2" align={"center"}>Reserving campsites in the US is hard.</Typography>
-            <Typography variant="h5" component="h2" align={"center"} height={100}> We're here to help.</Typography>
+            <Typography variant="h4" component="h2" align={"center"} >Reserving campsites in the US is hard</Typography>
+            <br /><br />
+            <Typography variant="h5" component="h2" align={"center"} > We're here to help</Typography>
+            <br /><br />
+
 
             <Definition />
+
+            <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="secondary"
+                onClick={() => {
+                    navigate("schniff")
+                }}
+                sx={{
+                    m: 1,
+                    maxWidth: 400,
+                }}
+            >
+                Start schniffing!
+            </Button>
 
         </Container >
     );
@@ -81,15 +102,15 @@ const Definition = () => {
                     noun
                 </Typography>
                 <Typography variant="body2">
-                    A service that schniffs for changes in campsite availability, and tells you when it finds what you want.
+                    A service that monitors (schniffs) for changes in campsite availability, and tells you when it finds what you want.
                     <br />
                     <br />
-                    {'"That schniffer helped me find an awesome campsite on a weekend I wanted, even though it was booked out at first!"'}
+                    <i>
+                        {'"Schniffer just schniffed  me out a campsite that was booked all summer!"'}
+                    </i>
                 </Typography>
             </CardContent>
-            <CardActions>
-                <Button size="small" onClick={() => navigate("monitor")}>Start schniffing</Button>
-            </CardActions>
+
         </Card>
     );
 }

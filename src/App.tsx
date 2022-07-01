@@ -28,10 +28,13 @@ import { ProtectedRoute } from './Auth/ProtectedRoute';
 import MonitorAdd from './Pages/MonitorAdd';
 import MonitorView from './Pages/MonitorView';
 import Header from './Components/Header';
-import Monitor from './Pages/Monitor';
+import Schniff from './Pages/Schniff';
 import SignOut from './Auth/SignOut';
 import Search from './Pages/Search';
 import Profile from './Pages/Profile';
+import Explanation from './Pages/Explanation';
+import { getFirestore } from "firebase/firestore";
+import { initializeApp } from "firebase/app";
 
 const brownTheme = createTheme({
   palette: {
@@ -77,16 +80,17 @@ function App() {
       <Header />
       <Routes>
         <Route path="" element={<Home />} />
-        <Route path="search" element={<Search />} />
+        {/* <Route path="search" element={<Search />} /> */}
+        <Route path="explanation" element={<Explanation />} />
         <Route
-          path="monitor"
+          path="schniff"
           element={
             <ProtectedRoute >
-              <Monitor />
+              <Schniff />
             </ProtectedRoute>
           }
         />
-        <Route
+        {/* <Route
           path="monitor/add"
           element={
             <ProtectedRoute >
@@ -101,7 +105,7 @@ function App() {
               <MonitorView />
             </ProtectedRoute>
           }
-        />
+        /> */}
         <Route
           path="profile"
           element={

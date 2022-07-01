@@ -8,6 +8,8 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
 import { getAuth } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { db } from '..';
 
 export default () => {
     const [pushbulletAPIKey, setPushbulletAPIKey] = useState<string | null>(null);
@@ -16,6 +18,18 @@ export default () => {
 
     const auth = getAuth();
 
+    const updateUserSettings = async () => {
+        // if (start === null || end === null) {
+        //     return
+        // }
+        setLoading(true)
+
+        await setDoc(doc(db, "users", auth.currentUser!.uid), {
+            pushbullet: pushbulletAPIKey
+        })
+        setLoading(false)
+        // console.log(getDates(start, end))
+    }
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setPushbulletAPIKey(event.target.value);
@@ -50,9 +64,10 @@ export default () => {
                 variant="contained"
                 color="secondary"
                 disabled={loading}
+                onClick={() => updateUserSettings()}
                 sx={{ m: 1 }}
             >
-                Update
+                Submit
             </Button>
 
 
