@@ -19,8 +19,6 @@ export const ProtectedRoute: React.FC<Props> = ({ children }) => {
         setLoggedIn(true)
       } else {
         setLoggedIn(false)
-
-        // No user is signed in...code to handle unauthenticated users.
       }
       setCheckingStatus(false)
     })
@@ -35,11 +33,9 @@ export const ProtectedRoute: React.FC<Props> = ({ children }) => {
           <div>spinno</div>
         ) : loggedIn ? (
           // if user is logged in, grant the access to the route
-          // note: in this example component is Bar
           children
         ) : (
           // else render an unauthorised component
-          // stating the reason why it cannot access the route
           <Navigate replace to={`/signin?redirect=${location.pathname}`} />
         )
       }

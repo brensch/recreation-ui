@@ -21,7 +21,6 @@ export default function SignIn() {
 
   const [searchParams] = useSearchParams()
   let redirectTarget = searchParams.get("redirect")
-
   const redirect = () => {
     if (redirectTarget !== null) {
       navigate(redirectTarget)
