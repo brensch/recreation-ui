@@ -3,7 +3,7 @@ import Container from "@mui/material/Container"
 import TextField from "@mui/material/TextField"
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"
 import { getAuth } from "firebase/auth"
-import { doc, setDoc } from "firebase/firestore"
+import { doc, setDoc, addDoc, collection } from "firebase/firestore"
 import React, { useEffect, useState } from "react"
 
 import { db } from ".."
@@ -30,14 +30,27 @@ export default () => {
     return dateArray
   }
 
-  const submitSchniffRequest = async () => {
+  const submitSchniffRequest = () => {
     let docID = `${auth.currentUser!.uid}/schniffs/send`
 
-    await setDoc(doc(db, "users", docID), {
-      name: "Los Angeles",
-      state: "CA",
-      country: "USA",
+    if (!start || !end) {
+      return
+    }
+    setLoading(true)
+
+    // setDoc(doc(db, "monitor_requests", docID), {
+    addDoc(collection(db, "monitor_requests"), {
+      Dates: getDates(start, end),
+      Ground: groundID,
+      Notifier: {
+        NotificationToken: "o.gMQajO2iSWtnlJpUBdXDl55CRO9UNhLw",
+        Username: "brend",
+      },
     })
+      .then(() => {})
+      .finally(() => {
+        setLoading(false)
+      })
   }
 
   return (
