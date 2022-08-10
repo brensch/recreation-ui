@@ -5,6 +5,9 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker"
 import { getAuth } from "firebase/auth"
 import { doc, setDoc, addDoc, collection } from "firebase/firestore"
 import React, { useEffect, useState } from "react"
+import { DateRangePicker } from "rsuite"
+import { Input, InputGroup, MaskedInput } from "rsuite"
+import Grid from "@mui/material/Grid"
 
 import { db } from ".."
 
@@ -60,49 +63,61 @@ export default () => {
       sx={{
         padding: 1,
         spacing: 2,
-        display: "flex",
-        alignItems: "center",
-        flexDirection: "column",
+        // display: "flex",
+        // alignItems: "center",
+        // flexDirection: "column",
         "& .MuiTextField-root": { m: 1, width: "100%" },
       }}
     >
-      <TextField
-        id="campground-url"
-        label="recreation.gov campground URL"
-        placeholder="eg: https://www.recreation.gov/camping/campgrounds/232450"
-        value={groundID}
-        onChange={handleChange}
-        variant="standard"
-      />
-      <DatePicker
-        label="Start date"
-        value={start}
-        onChange={(newValue) => {
-          setStart(newValue)
-        }}
-        renderInput={(params) => <TextField variant="standard" {...params} />}
-      />
-      <DatePicker
-        label="End date"
-        value={end}
-        onChange={(newValue) => {
-          setEnd(newValue)
-        }}
-        renderInput={(params) => <TextField variant="standard" {...params} />}
-      />
-      <Button
-        type="submit"
-        fullWidth
-        variant="contained"
-        color="secondary"
-        disabled={loading}
-        onClick={() => submitSchniffRequest()}
-        sx={{ m: 1 }}
-      >
-        Schniff
-      </Button>
-
-      {/* </Box> */}
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <TextField
+            id="campground-url"
+            label="recreation.gov campground URL"
+            placeholder="eg: https://www.recreation.gov/camping/campgrounds/232450"
+            value={groundID}
+            onChange={handleChange}
+            variant="standard"
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <DatePicker
+            label="Start date"
+            value={start}
+            onChange={(newValue) => {
+              setStart(newValue)
+            }}
+            renderInput={(params) => (
+              <TextField variant="standard" {...params} />
+            )}
+          />{" "}
+        </Grid>
+        <Grid item xs={6}>
+          <DatePicker
+            label="End date"
+            value={end}
+            onChange={(newValue) => {
+              setEnd(newValue)
+            }}
+            renderInput={(params) => (
+              <TextField variant="standard" {...params} />
+            )}
+          />{" "}
+        </Grid>
+        <Grid item xs={12}>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="secondary"
+            disabled={loading}
+            onClick={() => submitSchniffRequest()}
+            sx={{ m: 1 }}
+          >
+            Schniff
+          </Button>{" "}
+        </Grid>
+      </Grid>
     </Container>
   )
 }
