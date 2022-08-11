@@ -101,7 +101,7 @@ const Quotes = () => {
     <Card
       sx={{
         // maxWidth: 300,
-        backgroundColor: "#6F4E37",
+        backgroundColor: "#966c4a",
       }}
     >
       <CardContent>

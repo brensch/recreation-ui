@@ -113,7 +113,7 @@ export default function SignIn() {
             onClick={doAnonymousSignin}
             sx={{ mt: 3, mb: 2 }}
           >
-            It's a secret.
+            Sign In Anonymously
           </Button>
         </Box>
       </Box>

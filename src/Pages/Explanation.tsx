@@ -11,6 +11,7 @@ export default () => {
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        padding: 2,
       }}
     >
       <Typography variant="h4" component="h2">

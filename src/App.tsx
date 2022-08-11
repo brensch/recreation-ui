@@ -15,7 +15,7 @@ import Schniff from "./Pages/Schniff"
 const brownTheme = createTheme({
   palette: {
     background: {
-      default: "#80461B",
+      default: "#b06c34",
     },
     primary: {
       // light: will be calculated from palette.primary.main,
@@ -25,8 +25,8 @@ const brownTheme = createTheme({
       contrastText: "#000000",
     },
     secondary: {
-      light: "#6F4E37",
-      main: "#6F4E37",
+      light: "#966c4a",
+      main: "#966c4a",
       // dark: will be calculated from palette.secondary.main,
       contrastText: "#000000",
     },
@@ -45,6 +45,8 @@ const brownTheme = createTheme({
     },
   },
 })
+// b08b34
+// b04d34
 
 function App() {
   return (
