@@ -144,6 +144,8 @@ export default () => {
   }, [user])
 
   function getDates(startDate: Date, stopDate: Date) {
+    startDate.setUTCHours(0)
+    stopDate.setUTCHours(0)
     var dateArray = new Array()
     var currentDate = new Date(startDate)
     var targetDate = new Date(stopDate)
@@ -192,7 +194,7 @@ export default () => {
               color="secondary"
               onClick={() => navigate("/profile")}
             >
-              Set up Notifications
+              Enable notifications on this device
             </Button>
           </Grid>
         )}
@@ -257,7 +259,7 @@ export default () => {
             }
             onClick={() => submitSchniffRequest()}
           >
-            Schniff {unregistered && "(need to set up notifications)"}
+            Schniff {unregistered && "(need to enable notifications)"}
           </Button>
         </Grid>
 

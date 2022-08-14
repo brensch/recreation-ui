@@ -2,7 +2,11 @@ import Button from "@mui/material/Button"
 import Container from "@mui/material/Container"
 import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
-import { doc, onSnapshot, setDoc } from "firebase/firestore"
+import { doc, onSnapshot, setDoc, updateDoc } from "firebase/firestore"
+// import * as firestore from "firebase/firestore"
+// this is the dumbest shit after all the modular imports to not have arrayUnion defined
+// import firebase from "firebase/compat/app"
+// import { firestore } from "firebase/app"
 import React, { useEffect, useState, useContext } from "react"
 import {
   getAuth,
@@ -14,12 +18,26 @@ import {
   linkWithPopup,
   signInWithCredential,
 } from "firebase/auth"
+import Tooltip from "@mui/material/Tooltip"
+
 import List from "@mui/material/List"
 import ListItem from "@mui/material/ListItem"
 import { db } from ".."
 import { UserContext } from "../Auth/ProtectedRoute"
 import { Divider } from "@mui/material"
-
+import Link from "@mui/material/Link"
+import IconButton from "@mui/material/IconButton"
+import InfoIcon from "@mui/icons-material/Info"
+import Dialog from "@mui/material/Dialog"
+import DialogActions from "@mui/material/DialogActions"
+import DialogContent from "@mui/material/DialogContent"
+import DialogContentText from "@mui/material/DialogContentText"
+import DialogTitle from "@mui/material/DialogTitle"
+import { getMessaging, onMessage } from "firebase/messaging"
+import { messaging } from ".."
+import { getToken } from "firebase/messaging"
+import { NineKOutlined } from "@mui/icons-material"
+import { Navigate, useNavigate } from "react-router-dom"
 const provider = new GoogleAuthProvider()
 
 export default () => {
@@ -29,26 +47,53 @@ export default () => {
   const [linked, setLinked] = useState(false)
   const user = useContext(UserContext)
   const [error, setError] = useState<null | string>(null)
-  const [currentKey, setCurrentKey] = useState<string | null>(null)
-  // the context doesn't update when we link, so just using the auth object direectly on this page.
-  // const auth = getAuth()
+  const [message, setMessage] = useState<null | string>(null)
+  let navigate = useNavigate()
 
-  const updateUserSettings = () => {
-    if (!user) {
-      return
-    }
-    setLoading(true)
-    setPushbulletAPIKey("")
+  const [fcm, setFCM] = useState(false)
+  const [fcmToken, setFCMToken] = useState("")
 
-    setDoc(doc(db, "users", user.uid), {
-      pushbullet: pushbulletAPIKey,
-    }).finally(() => {
-      setLoading(false)
+  useEffect(() => {
+    const unsub = onMessage(messaging, (payload) => {
+      console.log("Message received. ", payload)
+      setFCM(true)
     })
-  }
+    return () => unsub()
+  })
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setPushbulletAPIKey(event.target.value)
+  const askForPermissioToReceiveNotifications = () => {
+    if (!user) {
+      return null
+    }
+
+    setLoading(true)
+    Notification.requestPermission()
+      .then((permission) => {
+        if (permission !== "granted") {
+          throw Error("permission not granted")
+        }
+      })
+      .then(() =>
+        getToken(messaging, {
+          vapidKey:
+            "BHQaTiV2r3DAZFnlIW_M2KbdTxWwnAkzm_aXSXNyD7e9RHEBII3wauhV_Vf7vCUEBxfSNA15vQYpkQhRKQ2QVf0",
+        }),
+      )
+      .then((token) =>
+        setDoc(doc(db, "users", user.uid), {
+          FirebaseCloudMessagingTokens: token,
+        }),
+      )
+      .catch((err) => {
+        console.log(err)
+        setMessage(err)
+      })
+      .finally(() => {
+        setMessage(
+          "Nice. You'll now get notifications on this device when we schniff something for you.",
+        )
+        setLoading(false)
+      })
   }
 
   const doGoogleSignin = () => {
@@ -69,24 +114,6 @@ export default () => {
       })
       .finally(() => setLoading(false))
   }
-
-  console.log(user?.isAnonymous)
-
-  useEffect(() => {
-    if (!user) {
-      return
-    }
-    const unsub = onSnapshot(doc(db, "users", user?.uid), (doc) => {
-      const source = doc.metadata.hasPendingWrites ? "Local" : "Server"
-      console.log(source, " data: ", doc.data())
-      if (!doc || doc.data() === undefined) {
-        return
-      }
-      setCurrentKey(doc.data()!.pushbullet)
-    })
-
-    return () => unsub()
-  }, [user])
 
   if (!user) {
     return <div />
@@ -140,7 +167,6 @@ export default () => {
     )
   }
 
-  // prompt for api key changes
   return (
     <Container
       component="main"
@@ -162,80 +188,39 @@ export default () => {
       >
         Signed in as {user.email}
       </Typography>
-      <Typography variant="body2" component="h2" align={"center"}>
-        We use Pushbullet to send notifications.
-        <br />
-        It's free, all you have to do is:
-      </Typography>
 
-      <ul>
-        <li>
-          <Typography variant="body2" component="h2">
-            Sign up
-          </Typography>
-        </li>
-        <li>
-          <Typography variant="body2" component="h2">
-            Go to settings
-          </Typography>
-        </li>
-        <li>
-          <Typography variant="body2" component="h2">
-            Click 'Create Access Token'
-          </Typography>
-        </li>
-      </ul>
-      <br />
       <Button
-        fullWidth
-        variant="contained"
-        color="secondary"
-        onClick={() =>
-          window.open(
-            `https://www.pushbullet.com/`,
-            "_blank",
-            "noopener,noreferrer",
-          )
-        }
-      >
-        Make a Pushbullet account
-      </Button>
-      <TextField
-        id="campground-url"
-        label="Pushbullet API Key"
-        placeholder="Get this from pushbullet.com"
-        variant="standard"
-        value={pushbulletAPIKey}
-        onChange={handleChange}
-      />
-      <Button
-        type="submit"
-        fullWidth
-        variant="contained"
-        color="secondary"
-        disabled={loading || pushbulletAPIKey === "" || !pushbulletAPIKey}
-        onClick={() => updateUserSettings()}
-      >
-        Submit
-      </Button>
-      <br />
-      <Typography variant="body2" component="h2" align={"center"}>
-        Current key:
-      </Typography>
-      <Typography variant="body2" component="h2" align={"center"}>
-        {currentKey ? currentKey : "Key not set."}
-      </Typography>
-      <br />
-      {/* <Button
         type="submit"
         fullWidth
         variant="contained"
         color="secondary"
         disabled={loading}
-        onClick={() => updateUserSettings()}
+        onClick={() => askForPermissioToReceiveNotifications()}
       >
-        Test API
-      </Button> */}
+        Enrol this device in notifications
+      </Button>
+      <br />
+      {message && (
+        <React.Fragment>
+          <Typography
+            variant="body1"
+            component="h2"
+            height={"50px"}
+            align={"center"}
+          >
+            {message}
+          </Typography>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="secondary"
+            onClick={() => navigate("/schniff")}
+          >
+            Set up my schniffers
+          </Button>
+        </React.Fragment>
+      )}
     </Container>
   )
 }

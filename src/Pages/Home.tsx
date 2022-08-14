@@ -6,11 +6,15 @@ import Container from "@mui/material/Container"
 import Paper from "@mui/material/Paper"
 import { styled } from "@mui/material/styles"
 import Typography from "@mui/material/Typography"
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { messaging } from ".."
+import { getToken } from "firebase/messaging"
+import { getMessaging, onMessage } from "firebase/messaging"
 
 export default () => {
   let navigate = useNavigate()
+  const [message, setMessage] = useState<string | null>(null)
 
   return (
     <Container

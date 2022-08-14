@@ -1,6 +1,6 @@
 import { CssBaseline } from "@mui/material"
 import { createTheme, ThemeProvider } from "@mui/material/styles"
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { Route, Routes } from "react-router-dom"
 
 import { ProtectedRoute } from "./Auth/ProtectedRoute"
@@ -11,6 +11,9 @@ import Explanation from "./Pages/Explanation"
 import Home from "./Pages/Home"
 import Profile from "./Pages/Profile"
 import Schniff from "./Pages/Schniff"
+import { getMessaging, onMessage } from "firebase/messaging"
+import { messaging } from "."
+import { getToken } from "firebase/messaging"
 
 const brownTheme = createTheme({
   palette: {
