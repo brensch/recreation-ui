@@ -6,6 +6,8 @@ import React, { useContext, useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import Button from "@mui/material/Button"
 import { useNavigate } from "react-router-dom"
+import { Typography } from "@mui/material"
+
 import {
   addDoc,
   collection,
@@ -59,6 +61,14 @@ export default () => {
       }}
     >
       <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Typography variant="h5" component="h3">
+            {notification?.Title}{" "}
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          Found at: {notification?.Created.toDate().toLocaleString()}
+        </Grid>
         <Grid item xs={6}>
           <Button
             fullWidth
@@ -81,14 +91,13 @@ export default () => {
             color="secondary"
             onClick={ackNotification}
           >
-            Finished
+            Dismiss
           </Button>
         </Grid>
         <Grid item xs={12}>
-          {notification?.Title}
-        </Grid>
-        <Grid item xs={12}>
-          {notification?.Created.toDate().toLocaleString()}
+          <Typography variant="h5" component="h3">
+            Changes found:
+          </Typography>
         </Grid>
         <Grid item xs={12}>
           <DataGrid

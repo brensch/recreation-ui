@@ -111,6 +111,7 @@ export default () => {
       maxWidth="sm"
       sx={{
         paddingTop: 2,
+        paddingBottom: 2,
         "& .MuiTextField-root": { width: "100%" },
       }}
     >
@@ -243,11 +244,7 @@ export default () => {
                   selectedRow.valueOf() - 1
                 ].end.toLocaleDateString()}`}
               />
-              <CardContent>
-                <Typography variant="body2" color="text.secondary">
-                  TODO: display stats of number of state changes schniffed.
-                </Typography>
-              </CardContent>
+
               <CardActions disableSpacing>
                 <IconButton
                   aria-label="stop schniffing"
@@ -306,7 +303,7 @@ export default () => {
 }
 
 const columns: GridColDef[] = [
-  { field: "ground", headerName: "Campground", width: 100 },
+  { field: "ground", headerName: "Campground", width: 250 },
   {
     field: "start",
     headerName: "Start",

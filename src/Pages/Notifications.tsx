@@ -11,7 +11,13 @@ import CardHeader from "@mui/material/CardHeader"
 import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid"
 import IconButton from "@mui/material/IconButton"
-import { DataGrid, GridColDef, GridRowParams } from "@mui/x-data-grid"
+import {
+  DataGrid,
+  GridColDef,
+  GridRowParams,
+  GridSortDirection,
+  GridSortModel,
+} from "@mui/x-data-grid"
 import { deleteDoc, doc } from "firebase/firestore"
 import React, { useContext, useEffect, useState } from "react"
 import { CopyToClipboard } from "react-copy-to-clipboard"
@@ -22,10 +28,16 @@ export default () => {
   const appContext = useContext(AppContext)
   let navigate = useNavigate()
 
+  const [sortModel, setSortModel] = React.useState<GridSortModel>([
+    {
+      field: "Created",
+      sort: "desc" as GridSortDirection,
+    },
+  ])
   return (
     <Container
       component="main"
-      maxWidth="sm"
+      maxWidth="md"
       sx={{
         paddingTop: 2,
         "& .MuiTextField-root": { width: "100%" },
@@ -44,6 +56,7 @@ export default () => {
             columns={columns}
             hideFooterPagination
             getRowId={(row: Notification) => row.ID}
+            sortModel={sortModel}
             components={{
               NoRowsOverlay: CustomNoRowsOverlay,
             }}
@@ -73,12 +86,17 @@ export default () => {
 }
 
 const columns: GridColDef[] = [
-  { field: "Title", headerName: "Title", flex: 1 },
+  { field: "Title", headerName: "Message", width: 500 },
   {
     field: "Created",
     headerName: "Created",
-    flex: 1,
     valueFormatter: ({ value }) => value.toDate().toLocaleString(),
+    width: 200,
+  },
+  {
+    field: "Deltas",
+    headerName: "Changes",
+    valueGetter: ({ value }) => value.length,
   },
 ]
 
@@ -93,7 +111,7 @@ function CustomNoRowsOverlay() {
         height: "100%",
       }}
     >
-      Ain't got no schniffs.
+      No notifications at the moment. Hopefully we find something for you soon.
     </Box>
   )
 }
