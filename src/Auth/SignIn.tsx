@@ -39,21 +39,21 @@ export default function SignIn() {
     return () => unsubscribe() // unsubscribing from the listener when the component is unmounting.
   }, [])
 
-  const doAnonymousSignin = () => {
-    setLoading(true)
-    signInAnonymously(auth)
-      .then(() => {
-        // Signed in..
-        redirect()
-      })
-      .catch((error) => {
-        const errorCode = error.code
-        const errorMessage = error.message
-        console.log(error)
-        // ...
-      })
-      .finally(() => setLoading(false))
-  }
+  // const doAnonymousSignin = () => {
+  //   setLoading(true)
+  //   signInAnonymously(auth)
+  //     .then(() => {
+  //       // Signed in..
+  //       redirect()
+  //     })
+  //     .catch((error) => {
+  //       const errorCode = error.code
+  //       const errorMessage = error.message
+  //       console.log(error)
+  //       // ...
+  //     })
+  //     .finally(() => setLoading(false))
+  // }
 
   const doGoogleSignin = () => {
     setLoading(true)
@@ -105,7 +105,7 @@ export default function SignIn() {
           >
             Sign In With Google
           </Button>
-          <Button
+          {/* <Button
             fullWidth
             variant="contained"
             color="secondary"
@@ -114,7 +114,7 @@ export default function SignIn() {
             sx={{ mt: 3, mb: 2 }}
           >
             Sign In Anonymously
-          </Button>
+          </Button> */}
         </Box>
       </Box>
     </Container>

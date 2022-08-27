@@ -21,25 +21,14 @@ const brownTheme = createTheme({
       default: "#b06c34",
     },
     primary: {
-      // light: will be calculated from palette.primary.main,
       main: "#000000",
-      // dark: will be calculated from palette.primary.main,
-      // contrastText: will be calculated to contrast with palette.primary.main
       contrastText: "#000000",
     },
     secondary: {
       light: "#966c4a",
       main: "#966c4a",
-      // dark: will be calculated from palette.secondary.main,
       contrastText: "#000000",
     },
-    // Used by `getContrastText()` to maximize the contrast between
-    // the background and the text.
-    // contrastThreshold: 3,
-    // Used by the functions below to shift a color's luminance by approximately
-    // two indexes within its tonal palette.
-    // E.g., shift from Red 500 to Red 300 or Red 700.
-    // tonalOffset: 0.3,
   },
   typography: {
     allVariants: {
@@ -48,8 +37,6 @@ const brownTheme = createTheme({
     },
   },
 })
-// b08b34
-// b04d34
 
 function App() {
   return (

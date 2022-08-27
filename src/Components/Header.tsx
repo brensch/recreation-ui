@@ -14,6 +14,7 @@ import Typography from "@mui/material/Typography"
 import { getAuth } from "firebase/auth"
 import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import Badge from "@mui/material/Badge"
 
 import { ReactComponent as Logo } from "../logo.svg"
 
@@ -190,9 +191,11 @@ export default () => {
             <Box sx={{ flexGrow: 0 }}>
               <Tooltip title="Open settings">
                 <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <FaceIcon
-                    sx={{ my: 2, color: "secondary.light", display: "block" }}
-                  />
+                  <Badge badgeContent={4} color="error">
+                    <FaceIcon
+                      sx={{ color: "secondary.light", display: "block" }}
+                    />
+                  </Badge>
                 </IconButton>
               </Tooltip>
               <Menu

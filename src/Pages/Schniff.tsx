@@ -25,10 +25,13 @@ import {
   query,
   Timestamp,
   where,
+  setDoc,
 } from "firebase/firestore"
 import React, { useContext, useEffect, useState } from "react"
 import { CopyToClipboard } from "react-copy-to-clipboard"
 import { useNavigate } from "react-router-dom"
+import { styled } from "@mui/material/styles"
+import Box from "@mui/material/Box"
 
 import { db } from ".."
 import { UserContext } from "../Auth/ProtectedRoute"
@@ -57,24 +60,29 @@ export default () => {
 
   const user = useContext(UserContext)
 
-  // get ground summaries
+  // get whether user has notifications turned on
   useEffect(() => {
     if (!user) {
       return
     }
 
-    console.log(user.isAnonymous)
+    console.log(user)
     const docRef = doc(db, "users", user.uid)
     getDoc(docRef)
       .then((snap) => {
-        if (snap.data() === undefined) {
+        let data = snap.data()
+        // if they have no user object, make one for them
+        if (data === undefined) {
+          setDoc(docRef, {
+            Email: user.email,
+          })
           setUnregistered(true)
           return
         }
-        console.log(snap.data())
-        // let campgrounds: GroundSummary[] = snap.data()!.GroundSummaries
-        // setCampgrounds(campgrounds)
-        // setGettingGrounds(false)
+
+        if (data.FirebaseCloudMessagingTokens === undefined) {
+          setUnregistered(true)
+        }
       })
       .catch(console.log)
   }, [user])
@@ -157,7 +165,7 @@ export default () => {
   }
 
   const submitSchniffRequest = () => {
-    if (!start || !end || !ground || !user || start > end || unregistered) {
+    if (!start || !end || !ground || !user || start > end) {
       return
     }
     setLoading(true)
@@ -249,17 +257,11 @@ export default () => {
             variant="contained"
             color="secondary"
             disabled={
-              loading ||
-              !start ||
-              !end ||
-              !ground ||
-              !user ||
-              start > end ||
-              unregistered
+              loading || !start || !end || !ground || !user || start > end
             }
             onClick={() => submitSchniffRequest()}
           >
-            Schniff {unregistered && "(need to enable notifications)"}
+            Schniff
           </Button>
         </Grid>
 
@@ -270,6 +272,9 @@ export default () => {
               rows={rows}
               columns={columns}
               hideFooterPagination
+              components={{
+                NoRowsOverlay: CustomNoRowsOverlay,
+              }}
               onSelectionModelChange={(selection) => {
                 setCopied(false)
                 if (selection.length === 0) {
@@ -387,3 +392,19 @@ const columns: GridColDef[] = [
     valueFormatter: ({ value }) => value.toLocaleDateString(),
   },
 ]
+
+function CustomNoRowsOverlay() {
+  return (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        height: "100%",
+      }}
+    >
+      Ain't got no schniffs.
+    </Box>
+  )
+}

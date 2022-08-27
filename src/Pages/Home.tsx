@@ -3,14 +3,9 @@ import Button from "@mui/material/Button"
 import Card from "@mui/material/Card"
 import CardContent from "@mui/material/CardContent"
 import Container from "@mui/material/Container"
-import Paper from "@mui/material/Paper"
-import { styled } from "@mui/material/styles"
 import Typography from "@mui/material/Typography"
 import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { messaging } from ".."
-import { getToken } from "firebase/messaging"
-import { getMessaging, onMessage } from "firebase/messaging"
 
 export default () => {
   let navigate = useNavigate()
@@ -94,32 +89,6 @@ const Definition = () => {
               '"Schniffer just schniffed  me out a campsite that was booked all summer!"'
             }
           </i>
-        </Typography>
-      </CardContent>
-    </Card>
-  )
-}
-
-const Quotes = () => {
-  return (
-    <Card
-      sx={{
-        // maxWidth: 300,
-        backgroundColor: "#966c4a",
-      }}
-    >
-      <CardContent>
-        <Typography variant="h5" component="div" align="right" height={50}>
-          Reviews
-        </Typography>
-
-        <Typography sx={{ mb: 1.5 }} align="right">
-          "It is nice." <br />
-          <i>Skye</i>
-        </Typography>
-        <Typography sx={{ mb: 1.5 }} align="right">
-          "I might try it if you get it to work." <br />
-          <i>Ben</i>
         </Typography>
       </CardContent>
     </Card>
