@@ -3,7 +3,7 @@ import InfoIcon from "@mui/icons-material/Info"
 import InsertLinkIcon from "@mui/icons-material/InsertLink"
 import ShareIcon from "@mui/icons-material/Share"
 import { Typography } from "@mui/material"
-import Autocomplete from "@mui/material/Autocomplete"
+import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
 import Card from "@mui/material/Card"
 import CardActions from "@mui/material/CardActions"
@@ -21,28 +21,17 @@ import {
   deleteDoc,
   doc,
   getDoc,
-  onSnapshot,
-  query,
-  Timestamp,
-  where,
   setDoc,
 } from "firebase/firestore"
 import React, { useContext, useEffect, useState } from "react"
 import { CopyToClipboard } from "react-copy-to-clipboard"
 import { useNavigate } from "react-router-dom"
-import { styled } from "@mui/material/styles"
-import Box from "@mui/material/Box"
+import Autocomplete from "@mui/material/Autocomplete"
 
 import { db } from ".."
-import { UserContext } from "../Auth/ProtectedRoute"
+import { AppContext, GroundSummary } from "../App"
 
-interface GroundSummary {
-  ID: string
-  Name: string
-  City: string
-  Lat: string
-  Lon: string
-}
+// import { UserContext } from "../Auth/ProtectedRoute"
 
 export default () => {
   const [ground, setGround] = useState<GroundSummary | null>(null)
@@ -50,31 +39,29 @@ export default () => {
   const [end, setEnd] = useState<Date | null>(null)
   const [loading, setLoading] = useState(false)
   const [gettingGrounds, setGettingGrounds] = useState(true)
-  const [campgrounds, setCampgrounds] = useState<GroundSummary[]>([])
-  const [rows, setRows] = useState<any[]>([])
+  // const [campgrounds, setCampgrounds] = useState<GroundSummary[]>([])
   const [selectedRow, setSelectedRow] = useState<GridRowId | null>(null)
   const [copied, setCopied] = useState(false)
   const [apiKey, setAPIKey] = useState<string | null>(null)
   const [unregistered, setUnregistered] = useState<boolean>(false)
   let navigate = useNavigate()
-
-  const user = useContext(UserContext)
+  const appContext = useContext(AppContext)
+  let { user, monitorRequestRows } = appContext!
 
   // get whether user has notifications turned on
   useEffect(() => {
     if (!user) {
       return
     }
-
     console.log(user)
     const docRef = doc(db, "users", user.uid)
     getDoc(docRef)
       .then((snap) => {
         let data = snap.data()
-        // if they have no user object, make one for them
+        // if they have no user object, make one for them so we know their email
         if (data === undefined) {
           setDoc(docRef, {
-            Email: user.email,
+            Email: user!.email,
           })
           setUnregistered(true)
           return
@@ -85,70 +72,6 @@ export default () => {
         }
       })
       .catch(console.log)
-  }, [user])
-
-  useEffect(() => {
-    const docRef = doc(db, "grounds_summary", "grounds_summary")
-    getDoc(docRef)
-      .then((snap) => {
-        console.log(snap.data())
-        let campgrounds: GroundSummary[] = snap.data()!.GroundSummaries
-        setCampgrounds(campgrounds)
-        setGettingGrounds(false)
-      })
-      .catch(console.log)
-  }, [])
-
-  console.log(loading)
-  console.log(start)
-  console.log(end)
-  console.log(ground)
-  console.log(user)
-  console.log(loading || !start || !end || !ground || !user || start > end)
-
-  // subscribe to monitors of user
-  useEffect(() => {
-    if (!user) {
-      return
-    }
-
-    const q = query(
-      collection(db, "monitor_requests"),
-      where("UserID", "==", user.uid),
-    )
-
-    const unsub = onSnapshot(q, (querySnapshot) => {
-      let newRows: any[] = []
-
-      var i = 1
-      querySnapshot.forEach((doc) => {
-        let data = doc.data()
-        let dates: Timestamp[] = data.Dates
-        console.log(data)
-        newRows.push({
-          id: i,
-          ground: data.Name,
-          start: dates
-            .reduce(function (a, b) {
-              return a < b ? a : b
-            })
-            .toDate(),
-          end: dates
-            .reduce(function (a, b) {
-              return a > b ? a : b
-            })
-            .toDate(),
-          groundID: data.Ground,
-          docID: doc.id,
-        })
-
-        i++
-      })
-
-      setRows(newRows)
-    })
-
-    return () => unsub()
   }, [user])
 
   function getDates(startDate: Date, stopDate: Date) {
@@ -169,7 +92,6 @@ export default () => {
       return
     }
     setLoading(true)
-
     addDoc(collection(db, "monitor_requests"), {
       Dates: getDates(start, end),
       Ground: ground.ID,
@@ -208,7 +130,7 @@ export default () => {
         )}
         <Grid item xs={12}>
           <Autocomplete
-            options={campgrounds}
+            options={appContext!.grounds}
             value={ground}
             onChange={(event: any, newValue: GroundSummary | null) => {
               setGround(newValue)
@@ -265,11 +187,11 @@ export default () => {
           </Button>
         </Grid>
 
-        {rows && (
+        {monitorRequestRows && (
           <Grid item xs={12}>
             <DataGrid
               autoHeight
-              rows={rows}
+              rows={monitorRequestRows}
               columns={columns}
               hideFooterPagination
               components={{
@@ -308,10 +230,10 @@ export default () => {
             <Card variant="outlined">
               <CardHeader
                 avatar={<InfoIcon />}
-                title={rows[selectedRow.valueOf() - 1].ground}
-                subheader={`${rows[
+                title={monitorRequestRows[selectedRow.valueOf() - 1].ground}
+                subheader={`${monitorRequestRows[
                   selectedRow.valueOf() - 1
-                ].start.toLocaleDateString()} - ${rows[
+                ].start.toLocaleDateString()} - ${monitorRequestRows[
                   selectedRow.valueOf() - 1
                 ].end.toLocaleDateString()}`}
               />
@@ -329,7 +251,7 @@ export default () => {
                       doc(
                         db,
                         "monitor_requests",
-                        rows[selectedRow.valueOf() - 1].docID,
+                        monitorRequestRows[selectedRow.valueOf() - 1].docID,
                       ),
                     )
                   }}
@@ -341,7 +263,7 @@ export default () => {
                   onClick={() =>
                     window.open(
                       `https://www.recreation.gov/camping/campgrounds/${
-                        rows[selectedRow.valueOf() - 1].groundID
+                        monitorRequestRows[selectedRow.valueOf() - 1].groundID
                       }`,
                       "_blank",
                       "noopener,noreferrer",
@@ -352,10 +274,10 @@ export default () => {
                 </IconButton>
                 <CopyToClipboard
                   text={`I'm schniffing for a campsite at ${
-                    rows[selectedRow.valueOf() - 1].ground
-                  } from ${rows[
+                    monitorRequestRows[selectedRow.valueOf() - 1].ground
+                  } from ${monitorRequestRows[
                     selectedRow.valueOf() - 1
-                  ].start.toLocaleDateString()} - ${rows[
+                  ].start.toLocaleDateString()} - ${monitorRequestRows[
                     selectedRow.valueOf() - 1
                   ].end.toLocaleDateString()}. Check it out yourself, https://schniffer.web.app `}
                   onCopy={() => setCopied(true)}

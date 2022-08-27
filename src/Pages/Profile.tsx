@@ -9,16 +9,17 @@ import { useNavigate } from "react-router-dom"
 import Link from "@mui/material/Link"
 
 import { db, messaging } from ".."
-import { UserContext } from "../Auth/ProtectedRoute"
+// import { UserContext } from "../Auth/ProtectedRoute"
+import { AppContext } from "../App"
 
 export default () => {
   const [loading, setLoading] = useState(false)
-  const user = useContext(UserContext)
+  const appContext = useContext(AppContext)
   const [message, setMessage] = useState<null | string>(null)
   let navigate = useNavigate()
 
   const askForPermissioToReceiveNotifications = () => {
-    if (!user) {
+    if (appContext?.user) {
       return null
     }
 
@@ -36,7 +37,7 @@ export default () => {
         }),
       )
       .then((token) =>
-        updateDoc(doc(db, "users", user.uid), {
+        updateDoc(doc(db, "users", appContext!.user!.uid), {
           FirebaseCloudMessagingTokens: [token],
         }),
       )
@@ -70,7 +71,7 @@ export default () => {
         height={"50px"}
         align={"center"}
       >
-        Signed in as {user!.email}
+        Signed in as {appContext!.user!.email}
       </Typography>
 
       <Button
@@ -90,7 +91,8 @@ export default () => {
         height={"50px"}
         align={"center"}
       >
-        Apple-ists, web push{" "}
+        Attention Apple-ists.
+        <br /> Web push{" "}
         <Link
           href="https://9to5mac.com/2022/06/06/ios-16-web-push-notifications-safari-update/"
           target="_blank"

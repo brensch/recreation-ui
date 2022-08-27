@@ -31,7 +31,6 @@ export default function SignIn() {
 
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      console.log(user)
       if (user) {
         redirect()
       }

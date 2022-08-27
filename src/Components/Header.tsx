@@ -12,9 +12,11 @@ import Toolbar from "@mui/material/Toolbar"
 import Tooltip from "@mui/material/Tooltip"
 import Typography from "@mui/material/Typography"
 import { getAuth } from "firebase/auth"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import Badge from "@mui/material/Badge"
+import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone"
+import { AppContext } from "../App"
 
 import { ReactComponent as Logo } from "../logo.svg"
 
@@ -32,38 +34,25 @@ const settings = ["profile", "signout"]
 
 export default () => {
   let navigate = useNavigate()
+  const appContext = useContext(AppContext)
 
   // todo, move this to a context so i don't have to have 2 watchers. lazy.
-  const auth = getAuth()
-  const [loggedIn, setLoggedIn] = useState(false)
-  const [checkingStatus, setCheckingStatus] = useState(true)
-
-  useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      // detaching the listener
-      if (user) {
-        // ...your code to handle authenticated users.
-        setLoggedIn(true)
-      } else {
-        setLoggedIn(false)
-
-        // No user is signed in...code to handle unauthenticated users.
-      }
-      setCheckingStatus(false)
-    })
-    return () => unsubscribe() // unsubscribing from the listener when the component is unmounting.
-  }, [])
 
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null)
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null,
   )
+  const [anchorElNotifications, setAnchorElNotifications] =
+    React.useState<null | HTMLElement>(null)
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget)
   }
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget)
+  }
+  const handleOpenNotifications = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElNotifications(event.currentTarget)
   }
 
   const handleCloseNavMenu = () => {
@@ -72,6 +61,10 @@ export default () => {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null)
+  }
+
+  const handleCloseUserNotifications = () => {
+    setAnchorElNotifications(null)
   }
 
   return (
@@ -86,7 +79,7 @@ export default () => {
         <Toolbar disableGutters>
           <TentIcon
             sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}
-            onClick={() => navigate("")}
+            onClick={() => navigate("/")}
           />
           <Typography
             variant="h6"
@@ -187,54 +180,72 @@ export default () => {
               </Button>
             ))}
           </Box>
-          {loggedIn ? (
-            <Box sx={{ flexGrow: 0 }}>
-              <Tooltip title="Open settings">
-                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Badge badgeContent={4} color="error">
-                    <FaceIcon
-                      sx={{ color: "secondary.light", display: "block" }}
-                    />
-                  </Badge>
-                </IconButton>
-              </Tooltip>
-              <Menu
-                sx={{ mt: "45px" }}
-                id="menu-appbar"
-                anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
-              >
-                {settings.map((setting) => (
-                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                    <Typography
-                      textAlign="center"
-                      onClick={() => {
-                        navigate(setting)
-                        handleCloseNavMenu()
-                      }}
+          {appContext!.user ? (
+            <React.Fragment>
+              <Box sx={{ flexGrow: 0 }}>
+                <Tooltip title="See notifications">
+                  <IconButton
+                    onClick={() => navigate(`/notifications`)}
+                    sx={{ p: 0 }}
+                  >
+                    <Badge
+                      badgeContent={appContext?.notifications.length}
+                      color="error"
                     >
-                      {setting}
-                    </Typography>
-                  </MenuItem>
-                ))}
-              </Menu>
-            </Box>
+                      <NotificationsNoneIcon
+                        sx={{
+                          color: "secondary.light",
+                          display: "block",
+                        }}
+                      />
+                    </Badge>
+                  </IconButton>
+                </Tooltip>
+              </Box>
+              <Box sx={{ flexGrow: 0 }}>
+                <Tooltip title="Open settings">
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <FaceIcon
+                      sx={{ color: "secondary.light", display: "block", ml: 2 }}
+                    />
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  sx={{ mt: "45px" }}
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  {settings.map((setting) => (
+                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                      <Typography
+                        textAlign="center"
+                        onClick={() => {
+                          navigate(setting)
+                          handleCloseNavMenu()
+                        }}
+                      >
+                        {setting}
+                      </Typography>
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </Box>
+            </React.Fragment>
           ) : (
             <Box sx={{ flexGrow: 0 }}>
               <IconButton sx={{ p: 0 }}>
-                <FaceIcon
-                  sx={{ my: 2, color: "primary", display: "block" }}
-                ></FaceIcon>
+                <FaceIcon sx={{ my: 2, color: "primary", display: "block" }} />
               </IconButton>
             </Box>
           )}
