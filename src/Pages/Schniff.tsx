@@ -115,6 +115,11 @@ export default () => {
       }}
     >
       <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Typography variant="h5" component="h3">
+            Add Schniffer
+          </Typography>
+        </Grid>
         {unregistered && (
           <Grid item xs={12}>
             <Button
@@ -186,45 +191,46 @@ export default () => {
             Schniff
           </Button>
         </Grid>
-
-        {monitorRequestRows && (
-          <Grid item xs={12}>
-            <DataGrid
-              autoHeight
-              rows={monitorRequestRows}
-              columns={columns}
-              hideFooterPagination
-              components={{
-                NoRowsOverlay: CustomNoRowsOverlay,
-              }}
-              onSelectionModelChange={(selection) => {
-                setCopied(false)
-                if (selection.length === 0) {
-                  setSelectedRow(null)
-                  return
-                }
-                console.log(selection)
-                setSelectedRow(selection[0])
-              }}
-              sx={{
-                width: "100%",
-                borderColor: "transparent",
-                "& .MuiDataGrid-iconSeparator": {
-                  display: "none",
-                },
-                "& .MuiDataGrid-cell": {
-                  borderBottom: `1px solid ${"#000000"}`,
-                },
-                "& .MuiDataGrid-columnHeaders": {
-                  borderBottom: `2px solid ${"#000000"}`,
-                },
-                "& .MuiDataGrid-footerContainer": {
-                  borderTop: `2px solid ${"#000000"}`,
-                },
-              }}
-            />
-          </Grid>
-        )}
+        <Grid item xs={12}>
+          <Typography variant="h5" component="h3">
+            Your Schniffs
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <DataGrid
+            autoHeight
+            rows={monitorRequestRows}
+            columns={columns}
+            hideFooterPagination
+            components={{
+              NoRowsOverlay: CustomNoRowsOverlay,
+            }}
+            onSelectionModelChange={(selection) => {
+              setCopied(false)
+              if (selection.length === 0) {
+                setSelectedRow(null)
+                return
+              }
+              console.log(selection)
+              setSelectedRow(selection[0])
+            }}
+            sx={{
+              borderColor: "transparent",
+              "& .MuiDataGrid-iconSeparator": {
+                display: "none",
+              },
+              "& .MuiDataGrid-cell": {
+                borderBottom: `1px solid ${"#000000"}`,
+              },
+              "& .MuiDataGrid-columnHeaders": {
+                borderBottom: `2px solid ${"#000000"}`,
+              },
+              "& .MuiDataGrid-footerContainer": {
+                borderTop: `2px solid ${"#000000"}`,
+              },
+            }}
+          />
+        </Grid>
         {selectedRow && typeof selectedRow === "number" && (
           <Grid item xs={12}>
             <Card variant="outlined">
@@ -300,7 +306,7 @@ export default () => {
 }
 
 const columns: GridColDef[] = [
-  { field: "ground", headerName: "Campground", flex: 1 },
+  { field: "ground", headerName: "Campground", width: 100 },
   {
     field: "start",
     headerName: "Start",

@@ -6,6 +6,7 @@ import Container from "@mui/material/Container"
 import Typography from "@mui/material/Typography"
 import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import Grid from "@mui/material/Grid"
 
 export default () => {
   let navigate = useNavigate()
@@ -14,44 +15,43 @@ export default () => {
   return (
     <Container
       component="main"
-      maxWidth="md"
+      maxWidth="xs"
       sx={{
-        padding: 1,
-        spacing: 2,
+        paddingTop: 2,
         display: "flex",
-        alignItems: "center",
+        // alignItems: "center",
         flexDirection: "column",
+        "& .MuiTextField-root": { width: "100%" },
       }}
     >
-      <Typography variant="h4" component="h2" align={"center"}>
-        Reserving campsites in the US is hard
-      </Typography>
-      <br />
-      <br />
-      <Typography variant="h5" component="h2" align={"center"}>
-        {" "}
-        We're here to help
-      </Typography>
-      <br />
-      <br />
-
-      <Definition />
-
-      <Button
-        type="submit"
-        fullWidth
-        variant="contained"
-        color="secondary"
-        onClick={() => {
-          navigate("schniff")
-        }}
-        sx={{
-          m: 1,
-          maxWidth: 400,
-        }}
-      >
-        Start schniffing!
-      </Button>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Typography variant="h4" component="h2">
+            Reserving campsites in the US is hard.
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="h5" component="h2">
+            We're here to help.
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Definition />
+        </Grid>
+        <Grid item xs={12}>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="secondary"
+            onClick={() => {
+              navigate("schniff")
+            }}
+          >
+            Start schniffing!
+          </Button>
+        </Grid>
+      </Grid>
     </Container>
   )
 }
@@ -59,18 +59,16 @@ export default () => {
 const bull = (
   <Box
     component="span"
-    sx={{ display: "inline-block", mx: "2px", transform: "scale(0.8)" }}
+    // sx={{ display: "inline-block", mx: "2px", transform: "scale(0.8)" }}
   >
     •
   </Box>
 )
 
 const Definition = () => {
-  let navigate = useNavigate()
   return (
     <Card
       sx={{
-        maxWidth: 400,
         backgroundColor: "#6F4E37",
       }}
     >

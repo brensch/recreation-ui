@@ -7,6 +7,7 @@ import { getToken } from "firebase/messaging"
 import React, { useContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import Link from "@mui/material/Link"
+import Grid from "@mui/material/Grid"
 
 import { db, messaging } from ".."
 // import { UserContext } from "../Auth/ProtectedRoute"
@@ -19,7 +20,7 @@ export default () => {
   let navigate = useNavigate()
 
   const askForPermissioToReceiveNotifications = () => {
-    if (appContext?.user) {
+    if (!appContext!.user) {
       return null
     }
 
@@ -50,6 +51,7 @@ export default () => {
           "Nice. You'll now get notifications on this device when we schniff something for you.",
         )
         setLoading(false)
+        console.log("done")
       })
   }
 
@@ -58,72 +60,70 @@ export default () => {
       component="main"
       maxWidth="sm"
       sx={{
-        padding: 4,
+        paddingTop: 2,
         display: "flex",
-        alignItems: "center",
         flexDirection: "column",
-        "& .MuiTextField-root": { m: 1, width: "100%" },
+        "& .MuiTextField-root": { width: "100%" },
       }}
     >
-      <Typography
-        variant="body1"
-        component="h2"
-        height={"50px"}
-        align={"center"}
-      >
-        Signed in as {appContext!.user!.email}
-      </Typography>
-
-      <Button
-        type="submit"
-        fullWidth
-        variant="contained"
-        color="secondary"
-        disabled={loading}
-        onClick={() => askForPermissioToReceiveNotifications()}
-      >
-        Enrol this device in notifications
-      </Button>
-      <br />
-      <Typography
-        variant="body1"
-        component="h2"
-        height={"50px"}
-        align={"center"}
-      >
-        Attention Apple-ists.
-        <br /> Web push{" "}
-        <Link
-          href="https://9to5mac.com/2022/06/06/ios-16-web-push-notifications-safari-update/"
-          target="_blank"
-        >
-          is only available as of iOS 16.
-        </Link>
-        <br />
-        You'll still receive an email.
-      </Typography>
-      <br />
-      {message && (
-        <React.Fragment>
-          <Typography
-            variant="body1"
-            component="h2"
-            height={"50px"}
-            align={"center"}
-          >
-            {message}
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Typography variant="h5" component="h3">
+            Profile
           </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="body1" component="h2">
+            Signed in as {appContext!.user!.email}
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
           <Button
             type="submit"
             fullWidth
             variant="contained"
             color="secondary"
-            onClick={() => navigate("/schniff")}
+            disabled={loading}
+            onClick={() => askForPermissioToReceiveNotifications()}
           >
-            Set up my schniffers
+            Enrol this device in notifications
           </Button>
-        </React.Fragment>
-      )}
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="body2" component="h2">
+            Attention Apple-ists:
+            <br /> Web push{" "}
+            <Link
+              href="https://9to5mac.com/2022/06/06/ios-16-web-push-notifications-safari-update/"
+              target="_blank"
+            >
+              is only available as of iOS 16.
+            </Link>
+            <br />
+            You'll still receive an email.
+          </Typography>
+        </Grid>
+        {message && (
+          <React.Fragment>
+            <Grid item xs={12}>
+              <Typography variant="body1" component="h2" align={"center"}>
+                {message}
+              </Typography>
+            </Grid>
+            <Grid item xs={12}>
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                color="secondary"
+                onClick={() => navigate("/schniff")}
+              >
+                Set up my schniffers
+              </Button>
+            </Grid>
+          </React.Fragment>
+        )}
+      </Grid>
     </Container>
   )
 }

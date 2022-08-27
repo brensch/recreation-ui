@@ -2,49 +2,72 @@ import Box from "@mui/material/Box"
 import Typography from "@mui/material/Typography"
 import { getAuth } from "firebase/auth"
 import React, { useEffect } from "react"
+import Grid from "@mui/material/Grid"
+import Container from "@mui/material/Container"
 
 export default () => {
   return (
-    <Box
+    <Container
+      maxWidth="xs"
       sx={{
-        marginTop: 8,
+        paddingTop: 2,
         display: "flex",
         flexDirection: "column",
-        alignItems: "center",
         padding: 2,
       }}
     >
-      <Typography variant="h4" component="h2">
-        The rundown
-      </Typography>
-      <br />
-
-      <Typography variant="body1" component="h2" style={{ maxWidth: "600px" }}>
-        If you're after a campground on a date that is currently fully booked,
-        put Schniffer to work.
-      </Typography>
-      <br />
-
-      <Typography variant="body1" component="h2" style={{ maxWidth: "600px" }}>
-        {" "}
-        As soon as someone cancels their existing reservation on a date you're
-        interested in, Schniffer will send you a notification that an
-        availability has opened up.
-      </Typography>
-      <br />
-
-      <Typography variant="body1" component="h2" style={{ maxWidth: "600px" }}>
-        {" "}
-        The notification will contain a link to book the site, jump on the
-        website and book it before someone else does.
-      </Typography>
-      <br />
-      <Typography variant="body1" component="h2" style={{ maxWidth: "600px" }}>
-        {" "}
-        The average time at popular campgrounds between availabilities appearing
-        and them being booked again is about 15 minutes. We will tell you within
-        2 minutes of it becoming available, the rest is up to you.
-      </Typography>
-    </Box>
+      <Grid container spacing={2}>
+        <Grid item xs={12}>
+          <Typography variant="h5" component="h3">
+            Explanation
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography
+            variant="body1"
+            component="h2"
+            style={{ maxWidth: "600px" }}
+          >
+            If you're after a campground on a date that is currently fully
+            booked, put Schniffer to work.
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography
+            variant="body1"
+            component="h2"
+            style={{ maxWidth: "600px" }}
+          >
+            As soon as someone cancels their existing reservation on a date
+            you're interested in, Schniffer will send you a notification that an
+            availability has opened up.
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography
+            variant="body1"
+            component="h2"
+            style={{ maxWidth: "600px" }}
+          >
+            Click on the notification and you'll see all the information about
+            what we found, including links to view the newly available campsite
+            and book.
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          {" "}
+          <Typography
+            variant="body1"
+            component="h2"
+            style={{ maxWidth: "600px" }}
+          >
+            The average time at popular campgrounds between availabilities
+            appearing and them being booked again is about <b>15 minutes</b>. We
+            will tell you within 2 minutes of it becoming available, the rest is
+            up to you.
+          </Typography>
+        </Grid>
+      </Grid>
+    </Container>
   )
 }
