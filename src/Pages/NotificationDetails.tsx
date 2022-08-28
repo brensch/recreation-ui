@@ -1,7 +1,13 @@
 import Box from "@mui/material/Box"
 import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid"
-import { DataGrid, GridColDef } from "@mui/x-data-grid"
+import {
+  DataGrid,
+  GridColDef,
+  GridRowParams,
+  GridSortDirection,
+  GridSortModel,
+} from "@mui/x-data-grid"
 import React, { useContext, useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import Button from "@mui/material/Button"
@@ -102,7 +108,14 @@ export default () => {
         <Grid item xs={12}>
           <DataGrid
             autoHeight
-            rows={notification.Deltas}
+            rows={notification.Deltas.sort((a, b) => {
+              // if a less than b
+              if (a.SiteID < b.SiteID) return -1
+              if (a.SiteID > b.SiteID) return 1
+              if (a.DateAffected < b.DateAffected) return -1
+              if (a.DateAffected > b.DateAffected) return 1
+              return 0
+            })}
             getRowId={(row: CampsiteDelta) =>
               `${row.DateAffected}-${row.SiteID}-${row.NewState}`
             }
@@ -161,7 +174,6 @@ const columns: GridColDef[] = [
     headerName: "Links",
     // flex: 1,
     renderCell: (params) => {
-      console.log(params.row)
       let delta: CampsiteDelta = params.row
       return (
         <Link
