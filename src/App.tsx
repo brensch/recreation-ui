@@ -116,7 +116,7 @@ function App() {
         )
       })
       .catch(console.log)
-  }, [])
+  }, [user])
 
   // subscribe to monitors
   const [rows, setRows] = useState<any[]>([])
