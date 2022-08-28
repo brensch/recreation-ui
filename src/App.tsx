@@ -64,6 +64,7 @@ export interface CampsiteDelta {
   NewState: number
   OldState: number
   SiteID: string
+  SiteName: string
 }
 
 export interface Notification {

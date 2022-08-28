@@ -6,7 +6,7 @@ import React, { useContext, useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import Button from "@mui/material/Button"
 import { useNavigate } from "react-router-dom"
-import { Typography } from "@mui/material"
+import { Link, Typography } from "@mui/material"
 
 import {
   addDoc,
@@ -145,24 +145,16 @@ const StateMapping = [
 ]
 
 const columns: GridColDef[] = [
-  { field: "SiteID", headerName: "Site" },
   {
-    field: "OldState",
-    headerName: "From",
-    width: 120,
-    valueFormatter: ({ value }) => StateMapping[value],
-  },
-  {
-    field: "NewState",
-    headerName: "To",
-    width: 120,
-    valueFormatter: ({ value }) => StateMapping[value],
-  },
-  {
-    field: "DateAffected",
-    headerName: "On",
-    // flex: 1,
-    valueFormatter: ({ value }) => value.toDate().toLocaleDateString(),
+    field: "SiteID",
+    headerName: "Site",
+    renderCell: (params) => {
+      let delta: CampsiteDelta = params.row
+      if (delta.SiteName) {
+        return delta.SiteName
+      }
+      return delta.SiteID
+    },
   },
   {
     field: "Visit",
@@ -172,17 +164,35 @@ const columns: GridColDef[] = [
       console.log(params.row)
       let delta: CampsiteDelta = params.row
       return (
-        <Button
-          onClick={() =>
-            window.open(
-              `https://www.recreation.gov/camping/campsites/${delta.SiteID}`,
-              "_blank",
-            )
-          }
+        <Link
+          href={`https://www.recreation.gov/camping/campsites/${delta.SiteID}`}
+          target="_blank"
         >
-          See Site
-        </Button>
+          See site
+        </Link>
       )
     },
+  },
+  {
+    field: "DateAffected",
+    headerName: "On",
+    width: 200,
+    valueFormatter: ({ value }) =>
+      `${value.toDate().toLocaleString("en-us", { weekday: "long" })} - ${value
+        .toDate()
+        .toLocaleDateString()}`,
+  },
+  {
+    field: "NewState",
+    headerName: "Change",
+    width: 200,
+    renderCell: (params) => {
+      let delta: CampsiteDelta = params.row
+      return `${StateMapping[delta.OldState]} -> ${
+        StateMapping[delta.NewState]
+      }`
+    },
+
+    // valueFormatter: ({ value }) => StateMapping[value],
   },
 ]
