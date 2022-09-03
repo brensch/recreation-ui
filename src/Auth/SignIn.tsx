@@ -84,7 +84,7 @@ export default function SignIn() {
         </Box>
         {error && (
           <Typography variant="body1" component="h2" align={"center"}>
-            <b>error</b>
+            <b>{error}</b>
           </Typography>
         )}
       </Box>
