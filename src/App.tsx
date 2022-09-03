@@ -9,7 +9,6 @@ import {
   query,
   Timestamp,
   where,
-  limit,
 } from "firebase/firestore"
 import React, { useEffect, useState } from "react"
 import { createContext } from "react"
@@ -202,9 +201,10 @@ function App() {
     "Enumerating noses",
     "Calibrating nostrils",
     "Plucking nosehair",
-    "Schnoobling Schnooblers",
     "Counting senses (got 5)",
-    "Thinking about camping",
+    "Not commenting on the large nose of the person you're talking to",
+    "Pondering the orb",
+    "Coming up with more load messages",
   ]
 
   var randomLoadingMessage =
