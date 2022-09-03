@@ -1,6 +1,7 @@
-import { getAuth, User } from "firebase/auth"
-import React, { useEffect, useContext, createContext } from "react"
+import { User } from "firebase/auth"
+import React, { createContext, useContext } from "react"
 import { Navigate, useLocation } from "react-router-dom"
+
 import { AppContext } from "../App"
 
 export const UserContext = createContext<User | null>(null)

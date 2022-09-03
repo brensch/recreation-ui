@@ -1,6 +1,8 @@
 import FaceIcon from "@mui/icons-material/Face"
 import MenuIcon from "@mui/icons-material/Menu"
+import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone"
 import AppBar from "@mui/material/AppBar"
+import Badge from "@mui/material/Badge"
 import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
 import Container from "@mui/material/Container"
@@ -11,13 +13,10 @@ import SvgIcon, { SvgIconProps } from "@mui/material/SvgIcon"
 import Toolbar from "@mui/material/Toolbar"
 import Tooltip from "@mui/material/Tooltip"
 import Typography from "@mui/material/Typography"
-import { getAuth } from "firebase/auth"
-import React, { useEffect, useState, useContext } from "react"
+import React, { useContext } from "react"
 import { useNavigate } from "react-router-dom"
-import Badge from "@mui/material/Badge"
-import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone"
-import { AppContext } from "../App"
 
+import { AppContext } from "../App"
 import { ReactComponent as Logo } from "../logo.svg"
 
 // import TentIcon from '@mui/icons-material/HolidayVillage';
@@ -32,11 +31,9 @@ function TentIcon(props: SvgIconProps) {
 const pages = ["explanation", "schniff"]
 const settings = ["profile", "signout"]
 
-export default () => {
+const Component = () => {
   let navigate = useNavigate()
   const appContext = useContext(AppContext)
-
-  // todo, move this to a context so i don't have to have 2 watchers. lazy.
 
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null)
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
@@ -243,3 +240,5 @@ export default () => {
     </AppBar>
   )
 }
+
+export default Component

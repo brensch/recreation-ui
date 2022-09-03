@@ -3,11 +3,11 @@ import InfoIcon from "@mui/icons-material/Info"
 import InsertLinkIcon from "@mui/icons-material/InsertLink"
 import ShareIcon from "@mui/icons-material/Share"
 import { Typography } from "@mui/material"
+import Autocomplete from "@mui/material/Autocomplete"
 import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
 import Card from "@mui/material/Card"
 import CardActions from "@mui/material/CardActions"
-import CardContent from "@mui/material/CardContent"
 import CardHeader from "@mui/material/CardHeader"
 import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid"
@@ -26,24 +26,19 @@ import {
 import React, { useContext, useEffect, useState } from "react"
 import { CopyToClipboard } from "react-copy-to-clipboard"
 import { useNavigate } from "react-router-dom"
-import Autocomplete from "@mui/material/Autocomplete"
 
 import { db } from ".."
 import { AppContext, GroundSummary } from "../App"
 
-// import { UserContext } from "../Auth/ProtectedRoute"
-
-export default () => {
+const Page = () => {
   const [ground, setGround] = useState<GroundSummary | null>(null)
   const [start, setStart] = useState<Date | null>(null)
   const [end, setEnd] = useState<Date | null>(null)
   const [loading, setLoading] = useState(false)
-  const [gettingGrounds, setGettingGrounds] = useState(true)
-  // const [campgrounds, setCampgrounds] = useState<GroundSummary[]>([])
   const [selectedRow, setSelectedRow] = useState<GridRowId | null>(null)
   const [copied, setCopied] = useState(false)
-  const [apiKey, setAPIKey] = useState<string | null>(null)
   const [unregistered, setUnregistered] = useState<boolean>(false)
+
   let navigate = useNavigate()
   const appContext = useContext(AppContext)
   let { user, monitorRequestRows } = appContext!
@@ -77,7 +72,7 @@ export default () => {
   function getDates(startDate: Date, stopDate: Date) {
     startDate.setUTCHours(0)
     stopDate.setUTCHours(0)
-    var dateArray = new Array()
+    var dateArray: Date[] = []
     var currentDate = new Date(startDate)
     var targetDate = new Date(stopDate)
     while (currentDate <= targetDate) {
@@ -345,3 +340,5 @@ function CustomNoRowsOverlay() {
     </Box>
   )
 }
+
+export default Page
