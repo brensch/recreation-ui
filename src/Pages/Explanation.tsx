@@ -1,11 +1,13 @@
-import Box from "@mui/material/Box"
-import Typography from "@mui/material/Typography"
-import { getAuth } from "firebase/auth"
-import React, { useEffect } from "react"
-import Grid from "@mui/material/Grid"
+import Button from "@mui/material/Button"
 import Container from "@mui/material/Container"
+import Grid from "@mui/material/Grid"
+import Typography from "@mui/material/Typography"
+import React from "react"
+import { useNavigate } from "react-router-dom"
 
-export default () => {
+const Component = () => {
+  let navigate = useNavigate()
+
   return (
     <Container
       maxWidth="md"
@@ -51,7 +53,22 @@ export default () => {
             available, the rest is up to you.
           </Typography>
         </Grid>
+        <Grid item xs={12}>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="secondary"
+            onClick={() => {
+              navigate("/schniff")
+            }}
+          >
+            Start schniffing
+          </Button>
+        </Grid>
       </Grid>
     </Container>
   )
 }
+
+export default Component

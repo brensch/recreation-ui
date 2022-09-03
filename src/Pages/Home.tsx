@@ -3,14 +3,13 @@ import Button from "@mui/material/Button"
 import Card from "@mui/material/Card"
 import CardContent from "@mui/material/CardContent"
 import Container from "@mui/material/Container"
-import Typography from "@mui/material/Typography"
-import React, { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
 import Grid from "@mui/material/Grid"
+import Typography from "@mui/material/Typography"
+import React from "react"
+import { useNavigate } from "react-router-dom"
 
-export default () => {
+const Component = () => {
   let navigate = useNavigate()
-  const [message, setMessage] = useState<string | null>(null)
 
   return (
     <Container
@@ -49,6 +48,19 @@ export default () => {
             }}
           >
             Start schniffing!
+          </Button>
+        </Grid>
+        <Grid item xs={12}>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="secondary"
+            onClick={() => {
+              navigate("explanation")
+            }}
+          >
+            Tell me more
           </Button>
         </Grid>
       </Grid>
@@ -92,3 +104,5 @@ const Definition = () => {
     </Card>
   )
 }
+
+export default Component
