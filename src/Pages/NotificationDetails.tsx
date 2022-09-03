@@ -1,38 +1,22 @@
-import Box from "@mui/material/Box"
+import { Link, Typography } from "@mui/material"
+import Button from "@mui/material/Button"
 import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid"
-import {
-  DataGrid,
-  GridColDef,
-  GridRowParams,
-  GridSortDirection,
-  GridSortModel,
-} from "@mui/x-data-grid"
+import { DataGrid, GridColDef } from "@mui/x-data-grid"
+import { doc, getDoc, updateDoc } from "firebase/firestore"
 import React, { useContext, useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
-import Button from "@mui/material/Button"
-import { useNavigate } from "react-router-dom"
-import { Link, Typography } from "@mui/material"
+import { useNavigate, useParams } from "react-router-dom"
 
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-} from "firebase/firestore"
-import { AppContext, CampsiteDelta, Notification } from "../App"
 import { db } from ".."
+import { CampsiteDelta, Notification } from "../App"
 
 export default () => {
-  const appContext = useContext(AppContext)
   const [notification, setNotification] = useState<Notification | null>(null)
 
   let params = useParams()
   let navigate = useNavigate()
 
+  // get notification detail on load
   useEffect(() => {
     const docRef = doc(db, "notifications", params!.id!)
     getDoc(docRef)
@@ -51,9 +35,6 @@ export default () => {
       .then(() => navigate("/notifications"))
       .catch((err) => console.log(err))
   }
-  // let notification = appContext?.notifications.find(
-  //   (notification) => notification.ID === params.id,
-  // )
 
   if (!notification) return <div />
 

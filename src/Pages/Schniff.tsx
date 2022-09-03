@@ -134,6 +134,16 @@ export default () => {
             </Button>
           </Grid>
         )}
+        {unregistered && (
+          <Grid item xs={12}>
+            <Typography variant="body1" component="h2">
+              <b>
+                Without notifications you will only receive emails when we find
+                new availabilities.
+              </b>
+            </Typography>
+          </Grid>
+        )}
         <Grid item xs={12}>
           <Autocomplete
             options={appContext!.grounds}

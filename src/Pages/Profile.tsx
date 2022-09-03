@@ -2,7 +2,7 @@ import Button from "@mui/material/Button"
 import Container from "@mui/material/Container"
 import Typography from "@mui/material/Typography"
 import { GoogleAuthProvider } from "firebase/auth"
-import { doc, updateDoc } from "firebase/firestore"
+import { doc, updateDoc, arrayUnion } from "firebase/firestore"
 import { getToken } from "firebase/messaging"
 import React, { useContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
@@ -39,7 +39,7 @@ export default () => {
       )
       .then((token) =>
         updateDoc(doc(db, "users", appContext!.user!.uid), {
-          FirebaseCloudMessagingTokens: [token],
+          FirebaseCloudMessagingTokens: arrayUnion(token),
         }),
       )
       .catch((err) => {
@@ -91,16 +91,39 @@ export default () => {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2" component="h2">
+            The point of this service is to notify you in real time when
+            campsites become available due to others cancelling their
+            reservations.
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="body2" component="h2">
+            If you don't like notifications that's fine, you'll just get emails.
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="body2" component="h2">
+            When popular sites become available we analysed the average time
+            until it's rebooked is 15 minutes. Do you respond to emails within
+            15 minutes?
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="body1" component="h2">
             Attention Apple-ists:
-            <br /> Web push{" "}
+          </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="body2" component="h2">
+            Web push{" "}
             <Link
               href="https://9to5mac.com/2022/06/06/ios-16-web-push-notifications-safari-update/"
               target="_blank"
             >
-              is only available as of iOS 16.
+              is only available as of iOS 16
             </Link>
-            <br />
-            You'll still receive an email.
+            , so notifications won't work for you. You'll still receive an
+            email.
           </Typography>
         </Grid>
         {message && (

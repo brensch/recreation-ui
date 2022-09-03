@@ -1,16 +1,9 @@
-import DeleteIcon from "@mui/icons-material/Delete"
-import InfoIcon from "@mui/icons-material/Info"
-import InsertLinkIcon from "@mui/icons-material/InsertLink"
-import ShareIcon from "@mui/icons-material/Share"
 import { Typography } from "@mui/material"
 import Box from "@mui/material/Box"
-import Card from "@mui/material/Card"
-import CardActions from "@mui/material/CardActions"
-import CardContent from "@mui/material/CardContent"
-import CardHeader from "@mui/material/CardHeader"
 import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid"
-import IconButton from "@mui/material/IconButton"
+import Button from "@mui/material/Button"
+
 import {
   DataGrid,
   GridColDef,
@@ -18,14 +11,24 @@ import {
   GridSortDirection,
   GridSortModel,
 } from "@mui/x-data-grid"
-import { deleteDoc, doc } from "firebase/firestore"
 import React, { useContext, useEffect, useState } from "react"
-import { CopyToClipboard } from "react-copy-to-clipboard"
-import { AppContext, Notification } from "../App"
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  runTransaction,
+  writeBatch,
+} from "firebase/firestore"
+import { db } from ".."
+
 import { useNavigate } from "react-router-dom"
+
+import { AppContext, Notification } from "../App"
 
 export default () => {
   const appContext = useContext(AppContext)
+  const [acking, setAcking] = useState<boolean>(false)
+
   let navigate = useNavigate()
 
   const [sortModel, setSortModel] = React.useState<GridSortModel>([
@@ -34,12 +37,31 @@ export default () => {
       sort: "desc" as GridSortDirection,
     },
   ])
+
+  const ackAllsNotification = () => {
+    setAcking(true)
+    const batch = writeBatch(db)
+
+    appContext?.notifications.forEach((notification) => {
+      const ref = doc(db, "notifications", notification.ID)
+      batch.update(ref, {
+        Acked: new Date(),
+      })
+    })
+
+    batch
+      .commit()
+      .catch((err) => console.log(err))
+      .finally(() => setAcking(false))
+  }
+
   return (
     <Container
       component="main"
       maxWidth="md"
       sx={{
         paddingTop: 2,
+        paddingBottom: 2,
         "& .MuiTextField-root": { width: "100%" },
       }}
     >
@@ -57,6 +79,7 @@ export default () => {
             hideFooterPagination
             getRowId={(row: Notification) => row.ID}
             sortModel={sortModel}
+            onSortModelChange={setSortModel}
             components={{
               NoRowsOverlay: CustomNoRowsOverlay,
             }}
@@ -80,6 +103,16 @@ export default () => {
             }}
           />
         </Grid>
+      </Grid>
+      <Grid item xs={6}>
+        <Button
+          fullWidth
+          variant="contained"
+          color="secondary"
+          onClick={ackAllsNotification}
+        >
+          Dismiss all
+        </Button>
       </Grid>
     </Container>
   )
