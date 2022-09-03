@@ -14,17 +14,5 @@
         }
       ]
     }
-  ],
-  "fieldOverrides": [
-    {
-      "collectionGroup": "availability_detailed",
-      "fieldPath": "Availabilities",
-      "indexes": []
-    },
-    {
-      "collectionGroup": "availability_detailed_test",
-      "fieldPath": "Availabilities",
-      "indexes": []
-    }
   ]
 }
