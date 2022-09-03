@@ -42,17 +42,12 @@ export default () => {
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
     null,
   )
-  const [anchorElNotifications, setAnchorElNotifications] =
-    React.useState<null | HTMLElement>(null)
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget)
   }
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget)
-  }
-  const handleOpenNotifications = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNotifications(event.currentTarget)
   }
 
   const handleCloseNavMenu = () => {
@@ -61,10 +56,6 @@ export default () => {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null)
-  }
-
-  const handleCloseUserNotifications = () => {
-    setAnchorElNotifications(null)
   }
 
   return (
@@ -137,9 +128,7 @@ export default () => {
                     handleCloseNavMenu()
                   }}
                 >
-                  <Typography textAlign="center" color={"secondary.main"}>
-                    {page}
-                  </Typography>
+                  <Typography textAlign="center">{page}</Typography>
                 </MenuItem>
               ))}
             </Menu>
