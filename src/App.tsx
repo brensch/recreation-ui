@@ -1,4 +1,4 @@
-import { CssBaseline } from "@mui/material"
+import { CssBaseline, Grid, Typography } from "@mui/material"
 import { createTheme, ThemeProvider } from "@mui/material/styles"
 import { getAuth, User } from "firebase/auth"
 import {
@@ -198,10 +198,37 @@ function App() {
     notifications: notifications,
   }
 
+  const loadingMessages: string[] = [
+    "Enumerating noses",
+    "Calibrating nostrils",
+    "Plucking nosehair",
+    "Schnoobling Schnooblers",
+    "Counting senses (got 5)",
+    "Thinking about camping",
+  ]
+
+  var randomLoadingMessage =
+    loadingMessages[Math.floor(Math.random() * loadingMessages.length)]
+
   if (loadingUser) {
-    return <ThemeProvider theme={brownTheme}></ThemeProvider>
+    return (
+      <ThemeProvider theme={brownTheme}>
+        <CssBaseline />
+        <Grid
+          container
+          spacing={0}
+          direction="column"
+          alignItems="center"
+          justifyContent="center"
+          style={{ minHeight: "100vh" }}
+        >
+          <Grid item xs={3}>
+            <Typography>{randomLoadingMessage}</Typography>
+          </Grid>
+        </Grid>
+      </ThemeProvider>
+    )
   }
-  console.log(notifications)
 
   return (
     <ThemeProvider theme={brownTheme}>
