@@ -292,7 +292,9 @@ export default () => {
                     selectedRow.valueOf() - 1
                   ].start.toLocaleDateString()} - ${monitorRequestRows[
                     selectedRow.valueOf() - 1
-                  ].end.toLocaleDateString()}. Check it out yourself, https://schniffer.web.app `}
+                  ].end.toLocaleDateString()}. Check it out yourself: schniffer: schniffer.com campground: recreation.gov/camping/campgrounds/${
+                    monitorRequestRows[selectedRow.valueOf() - 1].groundID
+                  }`}
                   onCopy={() => setCopied(true)}
                 >
                   <IconButton aria-label="share">

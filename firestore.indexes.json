@@ -1,0 +1,30 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "notifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "User",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "Acked",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": [
+    {
+      "collectionGroup": "availability_detailed",
+      "fieldPath": "Availabilities",
+      "indexes": []
+    },
+    {
+      "collectionGroup": "availability_detailed_test",
+      "fieldPath": "Availabilities",
+      "indexes": []
+    }
+  ]
+}
