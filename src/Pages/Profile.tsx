@@ -43,7 +43,6 @@ export default () => {
         }),
       )
       .catch((err) => {
-        console.log(err)
         setMessage(err)
       })
       .finally(() => {
@@ -51,7 +50,6 @@ export default () => {
           "Nice. You'll now get notifications on this device when we schniff something for you.",
         )
         setLoading(false)
-        console.log("done")
       })
   }
 

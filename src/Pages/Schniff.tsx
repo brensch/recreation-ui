@@ -48,7 +48,6 @@ const Page = () => {
     if (!user) {
       return
     }
-    console.log(user)
     const docRef = doc(db, "users", user.uid)
     getDoc(docRef)
       .then((snap) => {
@@ -87,12 +86,14 @@ const Page = () => {
       return
     }
     setLoading(true)
-    addDoc(collection(db, "monitor_requests"), {
+    const monitor = {
       Dates: getDates(start, end),
       Ground: ground.ID,
       UserID: user.uid,
       Name: ground.Name,
-    })
+    }
+    console.log(monitor)
+    addDoc(collection(db, "monitor_requests"), monitor)
       .then(() => {})
       .finally(() => {
         setGround(null)
