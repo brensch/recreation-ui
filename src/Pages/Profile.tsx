@@ -1,18 +1,17 @@
 import Button from "@mui/material/Button"
 import Container from "@mui/material/Container"
+import Grid from "@mui/material/Grid"
+import Link from "@mui/material/Link"
 import Typography from "@mui/material/Typography"
-import { GoogleAuthProvider } from "firebase/auth"
-import { doc, updateDoc, arrayUnion } from "firebase/firestore"
+import { arrayUnion, doc, updateDoc } from "firebase/firestore"
 import { getToken } from "firebase/messaging"
 import React, { useContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import Link from "@mui/material/Link"
-import Grid from "@mui/material/Grid"
 
 import { db, messaging } from ".."
-// import { UserContext } from "../Auth/ProtectedRoute"
 import { AppContext } from "../App"
 
+// import { UserContext } from "../Auth/ProtectedRoute"
 export default () => {
   const [loading, setLoading] = useState(false)
   const appContext = useContext(AppContext)

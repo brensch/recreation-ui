@@ -1,20 +1,19 @@
-import { CssBaseline } from "@mui/material"
-import React from "react"
-import ReactDOM from "react-dom/client"
-import App from "./App"
-import reportWebVitals from "./reportWebVitals"
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app"
+import { LocalizationProvider } from "@mui/x-date-pickers"
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
 import { getAnalytics } from "firebase/analytics"
+import { initializeApp } from "firebase/app"
 import { getFirestore } from "firebase/firestore"
 import { getMessaging } from "firebase/messaging"
-
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import React from "react"
+import ReactDOM from "react-dom/client"
 import { BrowserRouter as Router } from "react-router-dom"
 
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
-import { LocalizationProvider } from "@mui/x-date-pickers"
+import App from "./App"
+import reportWebVitals from "./reportWebVitals"
+
+// Import the functions you need from the SDKs you need
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 // import "rsuite/dist/rsuite.min.css"
 
 // Your web app's Firebase configuration

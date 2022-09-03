@@ -18,7 +18,6 @@ const Component = () => {
       sx={{
         paddingTop: 2,
         display: "flex",
-        // alignItems: "center",
         flexDirection: "column",
         "& .MuiTextField-root": { width: "100%" },
       }}

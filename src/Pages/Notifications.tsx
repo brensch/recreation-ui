@@ -1,9 +1,8 @@
 import { Typography } from "@mui/material"
 import Box from "@mui/material/Box"
+import Button from "@mui/material/Button"
 import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid"
-import Button from "@mui/material/Button"
-
 import {
   DataGrid,
   GridColDef,
@@ -11,18 +10,11 @@ import {
   GridSortDirection,
   GridSortModel,
 } from "@mui/x-data-grid"
+import { doc, writeBatch } from "firebase/firestore"
 import React, { useContext, useEffect, useState } from "react"
-import {
-  doc,
-  getDoc,
-  updateDoc,
-  runTransaction,
-  writeBatch,
-} from "firebase/firestore"
-import { db } from ".."
-
 import { useNavigate } from "react-router-dom"
 
+import { db } from ".."
 import { AppContext, Notification } from "../App"
 
 export default () => {
