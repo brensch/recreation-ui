@@ -7,14 +7,16 @@ import Grid from "@mui/material/Grid"
 import Typography from "@mui/material/Typography"
 import React from "react"
 import { useNavigate } from "react-router-dom"
+import useTitle from "../useTitle"
 
 const Component = () => {
   let navigate = useNavigate()
+  useTitle("")
 
   return (
     <Container
       component="main"
-      maxWidth="xs"
+      maxWidth="sm"
       sx={{
         paddingTop: 2,
         display: "flex",
@@ -25,12 +27,13 @@ const Component = () => {
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Typography variant="h4" component="h2">
-            Reserving campsites in the US is hard.
+            Get reservations at fully booked campgrounds
           </Typography>
         </Grid>
         <Grid item xs={12}>
-          <Typography variant="h5" component="h2">
-            We're here to help.
+          <Typography variant="h6" component="h2">
+            Tell the schniffer when and where you want to camp, and it'll tell
+            you if a site becomes free.
           </Typography>
         </Grid>
         <Grid item xs={12}>
@@ -82,8 +85,8 @@ const Definition = () => {
         </Typography>
         <Typography sx={{ mb: 1.5 }}>noun</Typography>
         <Typography variant="body2">
-          A service that monitors (schniffs) for changes in campsite
-          availability, and tells you when it finds what you want.
+          A service that scans (schniffs) for changes in campsite availability,
+          and tells you when it finds what you want.
           <br />
           <br />
           <i>

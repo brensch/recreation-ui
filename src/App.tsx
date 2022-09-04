@@ -1,10 +1,11 @@
-import { CssBaseline, Grid, Typography } from "@mui/material"
+import { Container, CssBaseline, Grid, Typography } from "@mui/material"
 import { createTheme, ThemeProvider } from "@mui/material/styles"
 import { getAuth, User } from "firebase/auth"
 import {
   collection,
   doc,
   getDoc,
+  setDoc,
   onSnapshot,
   query,
   Timestamp,
@@ -24,9 +25,10 @@ import Explanation from "./Pages/Explanation"
 import Home from "./Pages/Home"
 import NotificationDetails from "./Pages/NotificationDetails"
 import Notifications from "./Pages/Notifications"
-import Profile from "./Pages/Profile"
+import Settings from "./Pages/Settings"
 import Schniff from "./Pages/Schniff"
 import { analytics } from "."
+import { FirestoreCollections } from "./constants"
 
 const brownTheme = createTheme({
   palette: {
@@ -80,8 +82,14 @@ export interface Notification {
 interface AppContextInterface {
   grounds: GroundSummary[]
   user: User | null
+  userInformation: UserInformation | null
   monitorRequestRows: any[]
   notifications: Notification[]
+}
+
+export interface UserInformation {
+  Email: string | null
+  FirebaseCloudMessagingTokens: string[]
 }
 
 export const AppContext = createContext<AppContextInterface | null>(null)
@@ -91,6 +99,10 @@ function App() {
   const auth = getAuth()
   const [loadingUser, setLoadingUser] = useState(true)
   const [user, setUser] = useState<User | null>(null)
+  const [userInformation, setUserInformation] =
+    useState<UserInformation | null>(null)
+  const [checkedUserInfo, setCheckedUserInfo] = useState(false)
+
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((newUser) => {
       setUser(newUser)
@@ -105,7 +117,11 @@ function App() {
   // get campground list
   const [campgrounds, setCampgrounds] = useState<GroundSummary[]>([])
   useEffect(() => {
-    const docRef = doc(db, "grounds_summary", "grounds_summary")
+    const docRef = doc(
+      db,
+      FirestoreCollections.GROUNDS_SUMMARY,
+      FirestoreCollections.GROUNDS_SUMMARY,
+    )
     getDoc(docRef)
       .then((snap) => {
         let campgrounds: GroundSummary[] = snap.data()!.GroundSummaries
@@ -130,7 +146,7 @@ function App() {
     }
 
     const q = query(
-      collection(db, "monitor_requests"),
+      collection(db, FirestoreCollections.MONITOR_REQUESTS),
       where("UserID", "==", user.uid),
     )
 
@@ -173,7 +189,7 @@ function App() {
     if (!user) return
 
     const q = query(
-      collection(db, "notifications"),
+      collection(db, FirestoreCollections.NOTIFICATIONS),
       where("User", "==", user.uid),
       where("Acked", "<", new Date(0)),
     )
@@ -189,27 +205,78 @@ function App() {
         )
       },
       (error: any) => {
-        console.log(error)
+        logEvent(analytics, "error subscribing to notifications", {
+          error: error,
+        })
       },
     )
     return () => unsub()
   }, [user])
 
+  // subscribe to user object (for tokens etc)
+  useEffect(() => {
+    if (!user) {
+      return
+    }
+
+    const docRef = doc(db, FirestoreCollections.USER_INFO, user.uid)
+    const unsub = onSnapshot(
+      docRef,
+      (doc) => {
+        setUserInformation(doc.data() as any as UserInformation)
+        setCheckedUserInfo(true)
+      },
+      (error: any) => {
+        logEvent(analytics, "error subscribing to user object", {
+          error: error,
+        })
+      },
+    )
+
+    return () => unsub()
+  }, [user])
+
+  // see if the user info does not exist, and if it doesn't, add it
+  useEffect(() => {
+    // return if we haven't finished checking user info or have already got user info
+    if (!user || userInformation || !checkedUserInfo) {
+      return
+    }
+
+    logEvent(analytics, "new user logged in")
+
+    const docRef = doc(db, FirestoreCollections.USER_INFO, user.uid)
+    const newUserInfo: UserInformation = {
+      FirebaseCloudMessagingTokens: [],
+      Email: user!.email,
+    }
+    setDoc(docRef, newUserInfo).catch((error: any) => {
+      logEvent(analytics, "error updating userinformation on first page load", {
+        error: error,
+      })
+    })
+  }, [userInformation, user, checkedUserInfo])
+
   const appContextValues: AppContextInterface = {
     grounds: campgrounds,
     user: user,
+    userInformation: userInformation,
     monitorRequestRows: rows,
     notifications: notifications,
   }
 
   const loadingMessages: string[] = [
-    "Enumerating noses",
+    "Enumerating nostrils",
     "Calibrating nostrils",
     "Plucking nosehair",
     "Counting senses (got 5)",
-    "Not commenting on the large nose of the person you're talking to",
     "Pondering the orb",
     "Coming up with more load messages",
+    "Smelling the flowers",
+    "Applying sunscreen to nose",
+    "Consulting on rhinoplasty",
+    "Having rhinoplasty",
+    "Recovering from rhinoplasty",
   ]
 
   var randomLoadingMessage =
@@ -219,18 +286,20 @@ function App() {
     return (
       <ThemeProvider theme={brownTheme}>
         <CssBaseline />
-        <Grid
-          container
-          spacing={0}
-          direction="column"
-          alignItems="center"
-          justifyContent="center"
-          style={{ minHeight: "100vh" }}
-        >
-          <Grid item xs={3}>
-            <Typography>{randomLoadingMessage}</Typography>
+        <Container component="main" maxWidth="xs">
+          <Grid
+            container
+            spacing={0}
+            direction="column"
+            alignItems="center"
+            justifyContent="center"
+            style={{ minHeight: "100vh" }}
+          >
+            <Grid item xs={3}>
+              <Typography>{randomLoadingMessage}</Typography>
+            </Grid>
           </Grid>
-        </Grid>
+        </Container>
       </ThemeProvider>
     )
   }
@@ -255,7 +324,7 @@ function App() {
             path="profile"
             element={
               <ProtectedRoute>
-                <Profile />
+                <Settings />
               </ProtectedRoute>
             }
           />

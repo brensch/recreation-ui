@@ -16,12 +16,15 @@ import { useNavigate } from "react-router-dom"
 
 import { db } from ".."
 import { AppContext, Notification } from "../App"
+import useTitle from "../useTitle"
 
 const Component = () => {
   const appContext = useContext(AppContext)
   const [acking, setAcking] = useState<boolean>(false)
 
   let navigate = useNavigate()
+
+  useTitle("notifications")
 
   const [sortModel, setSortModel] = React.useState<GridSortModel>([
     {

@@ -5,12 +5,15 @@ import Typography from "@mui/material/Typography"
 import React from "react"
 import { useNavigate } from "react-router-dom"
 
+import useTitle from "../useTitle"
+
 const Component = () => {
   let navigate = useNavigate()
+  useTitle("explanation")
 
   return (
     <Container
-      maxWidth="md"
+      maxWidth="sm"
       sx={{
         paddingTop: 2,
         display: "flex",

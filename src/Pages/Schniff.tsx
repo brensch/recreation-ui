@@ -21,20 +21,14 @@ import {
   GridSortModel,
 } from "@mui/x-data-grid"
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  setDoc,
-} from "firebase/firestore"
-import React, { useContext, useEffect, useState } from "react"
+import { addDoc, collection, deleteDoc, doc } from "firebase/firestore"
+import React, { useContext, useState } from "react"
 import { CopyToClipboard } from "react-copy-to-clipboard"
 import { useNavigate } from "react-router-dom"
 
 import { db } from ".."
 import { AppContext, GroundSummary } from "../App"
+import useTitle from "../useTitle"
 
 const Page = () => {
   const [ground, setGround] = useState<GroundSummary | null>(null)
@@ -43,7 +37,6 @@ const Page = () => {
   const [loading, setLoading] = useState(false)
   const [selectedRow, setSelectedRow] = useState<GridRowId | null>(null)
   const [copied, setCopied] = useState(false)
-  const [unregistered, setUnregistered] = useState<boolean>(false)
 
   let navigate = useNavigate()
   const appContext = useContext(AppContext)
@@ -57,30 +50,7 @@ const Page = () => {
     },
   ])
 
-  // get whether user has notifications turned on
-  useEffect(() => {
-    if (!user) {
-      return
-    }
-    const docRef = doc(db, "users", user.uid)
-    getDoc(docRef)
-      .then((snap) => {
-        let data = snap.data()
-        // if they have no user object, make one for them so we know their email
-        if (data === undefined) {
-          setDoc(docRef, {
-            Email: user!.email,
-          })
-          setUnregistered(true)
-          return
-        }
-
-        if (data.FirebaseCloudMessagingTokens === undefined) {
-          setUnregistered(true)
-        }
-      })
-      .catch(console.log)
-  }, [user])
+  useTitle("create")
 
   // i hate time
   // for the requests to work in firestore we need them all to line up with 0 UTC
@@ -96,6 +66,7 @@ const Page = () => {
       dateArray.push(new Date(currentDate))
       currentDate.setDate(currentDate.getDate() + 1)
     }
+
     return dateArray
   }
 
@@ -134,29 +105,24 @@ const Page = () => {
             Add Schniffer
           </Typography>
         </Grid>
-        {unregistered && (
-          <Grid item xs={12}>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              color="secondary"
-              onClick={() => navigate("/profile")}
-            >
-              Enable notifications on this device
-            </Button>
-          </Grid>
-        )}
-        {unregistered && (
-          <Grid item xs={12}>
-            <Typography variant="body1" component="h2">
-              <b>
-                Without notifications you will only receive emails when we find
-                new availabilities.
-              </b>
-            </Typography>
-          </Grid>
-        )}
+        {appContext &&
+          appContext.userInformation &&
+          appContext!.userInformation!.FirebaseCloudMessagingTokens!.length ===
+            0 && (
+            <React.Fragment>
+              <Grid item xs={12}>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => navigate("/profile")}
+                >
+                  Turn on Notifications
+                </Button>
+              </Grid>
+            </React.Fragment>
+          )}
         <Grid item xs={12}>
           <Autocomplete
             options={appContext!.grounds}
@@ -335,14 +301,18 @@ const columns: GridColDef[] = [
     headerName: "Start",
     width: 100,
     valueFormatter: ({ value }) =>
-      `${value.getUTCFullYear()}/${value.getUTCMonth()}/${value.getUTCDate()}`,
+      `${value.getUTCFullYear()}/${
+        value.getUTCMonth() + 1
+      }/${value.getUTCDate()}`,
   },
   {
     field: "end",
     headerName: "End",
     width: 100,
     valueFormatter: ({ value }) =>
-      `${value.getUTCFullYear()}/${value.getUTCMonth()}/${value.getUTCDate()}`,
+      `${value.getUTCFullYear()}/${
+        value.getUTCMonth() + 1
+      }/${value.getUTCDate()}`,
   },
 ]
 
