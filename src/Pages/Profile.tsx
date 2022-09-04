@@ -5,14 +5,13 @@ import Link from "@mui/material/Link"
 import Typography from "@mui/material/Typography"
 import { arrayUnion, doc, updateDoc } from "firebase/firestore"
 import { getToken } from "firebase/messaging"
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 import { db, messaging } from ".."
 import { AppContext } from "../App"
 
-// import { UserContext } from "../Auth/ProtectedRoute"
-export default () => {
+const Component = () => {
   const [loading, setLoading] = useState(false)
   const appContext = useContext(AppContext)
   const [message, setMessage] = useState<null | string>(null)
@@ -147,3 +146,5 @@ export default () => {
     </Container>
   )
 }
+
+export default Component

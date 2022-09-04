@@ -11,13 +11,13 @@ import {
   GridSortModel,
 } from "@mui/x-data-grid"
 import { doc, writeBatch } from "firebase/firestore"
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
 import { db } from ".."
 import { AppContext, Notification } from "../App"
 
-export default () => {
+const Component = () => {
   const appContext = useContext(AppContext)
   const [acking, setAcking] = useState<boolean>(false)
 
@@ -101,6 +101,7 @@ export default () => {
           fullWidth
           variant="contained"
           color="secondary"
+          disabled={acking}
           onClick={ackAllsNotification}
         >
           Dismiss all
@@ -140,3 +141,5 @@ function CustomNoRowsOverlay() {
     </Box>
   )
 }
+
+export default Component

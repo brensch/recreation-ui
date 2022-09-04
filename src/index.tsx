@@ -11,13 +11,6 @@ import { BrowserRouter as Router } from "react-router-dom"
 import App from "./App"
 import reportWebVitals from "./reportWebVitals"
 
-// Import the functions you need from the SDKs you need
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-// import "rsuite/dist/rsuite.min.css"
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyCk41Er_X0TQFnq6UtEXFnM-WHuXmfTd2I",
   authDomain: "campr-app.firebaseapp.com",
@@ -30,7 +23,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig)
-const analytics = getAnalytics(app)
+export const analytics = getAnalytics(app)
 export const db = getFirestore(app)
 export const messaging = getMessaging(app)
 

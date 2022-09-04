@@ -4,13 +4,13 @@ import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid"
 import { DataGrid, GridColDef } from "@mui/x-data-grid"
 import { doc, getDoc, updateDoc } from "firebase/firestore"
-import React, { useContext, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 
 import { db } from ".."
 import { CampsiteDelta, Notification } from "../App"
 
-export default () => {
+const Component = () => {
   const [notification, setNotification] = useState<Notification | null>(null)
 
   let params = useParams()
@@ -185,7 +185,7 @@ const columns: GridColDef[] = [
         StateMapping[delta.NewState]
       }`
     },
-
-    // valueFormatter: ({ value }) => StateMapping[value],
   },
 ]
+
+export default Component

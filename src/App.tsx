@@ -13,6 +13,7 @@ import {
 import React, { useEffect, useState } from "react"
 import { createContext } from "react"
 import { Route, Routes } from "react-router-dom"
+import { logEvent } from "firebase/analytics"
 
 import { db } from "."
 import { ProtectedRoute } from "./Auth/ProtectedRoute"
@@ -25,6 +26,7 @@ import NotificationDetails from "./Pages/NotificationDetails"
 import Notifications from "./Pages/Notifications"
 import Profile from "./Pages/Profile"
 import Schniff from "./Pages/Schniff"
+import { analytics } from "."
 
 const brownTheme = createTheme({
   palette: {
@@ -93,6 +95,9 @@ function App() {
     const unsubscribe = auth.onAuthStateChanged((newUser) => {
       setUser(newUser)
       setLoadingUser(false)
+      logEvent(analytics, "user logged in", {
+        user: newUser?.email,
+      })
     })
     return () => unsubscribe() // unsubscribing from the listener when the component is unmounting.
   }, [auth])
