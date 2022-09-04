@@ -1,6 +1,7 @@
 import FaceIcon from "@mui/icons-material/Face"
 import MenuIcon from "@mui/icons-material/Menu"
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone"
+import SettingsIcon from "@mui/icons-material/Settings"
 import AppBar from "@mui/material/AppBar"
 import Badge from "@mui/material/Badge"
 import Box from "@mui/material/Box"
@@ -19,7 +20,6 @@ import { useNavigate } from "react-router-dom"
 import { AppContext } from "../App"
 import { ReactComponent as Logo } from "../logo.svg"
 
-// import TentIcon from '@mui/icons-material/HolidayVillage';
 function TentIcon(props: SvgIconProps) {
   return (
     <SvgIcon {...props}>
@@ -29,30 +29,19 @@ function TentIcon(props: SvgIconProps) {
 }
 
 const pages = ["explanation", "schniff"]
-const settings = ["profile", "signout"]
 
 const Component = () => {
   let navigate = useNavigate()
   const appContext = useContext(AppContext)
 
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null)
-  const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(
-    null,
-  )
 
   const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElNav(event.currentTarget)
   }
-  const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElUser(event.currentTarget)
-  }
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null)
-  }
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null)
   }
 
   return (
@@ -189,43 +178,16 @@ const Component = () => {
                 </Tooltip>
               </Box>
               <Box sx={{ flexGrow: 0 }}>
-                <Tooltip title="Open settings">
-                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <FaceIcon
+                <Tooltip title="Settings">
+                  <IconButton
+                    onClick={() => navigate("/profile")}
+                    sx={{ p: 0 }}
+                  >
+                    <SettingsIcon
                       sx={{ color: "secondary.light", display: "block", ml: 2 }}
                     />
                   </IconButton>
                 </Tooltip>
-                <Menu
-                  sx={{ mt: "45px" }}
-                  id="menu-appbar"
-                  anchorEl={anchorElUser}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  open={Boolean(anchorElUser)}
-                  onClose={handleCloseUserMenu}
-                >
-                  {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                      <Typography
-                        textAlign="center"
-                        onClick={() => {
-                          navigate(setting)
-                          handleCloseNavMenu()
-                        }}
-                      >
-                        {setting}
-                      </Typography>
-                    </MenuItem>
-                  ))}
-                </Menu>
               </Box>
             </React.Fragment>
           ) : (

@@ -9,12 +9,14 @@ import { useNavigate, useParams } from "react-router-dom"
 
 import { db } from ".."
 import { CampsiteDelta, Notification } from "../App"
+import useTitle from "../useTitle"
 
 const Component = () => {
   const [notification, setNotification] = useState<Notification | null>(null)
 
   let params = useParams()
   let navigate = useNavigate()
+  useTitle("details")
 
   // get notification detail on load
   useEffect(() => {
@@ -36,14 +38,15 @@ const Component = () => {
       .catch((err) => console.log(err))
   }
 
-  if (!notification) return <div />
+  if (!notification) return null
 
   return (
     <Container
       component="main"
-      maxWidth="sm"
+      maxWidth="md"
       sx={{
         paddingTop: 2,
+        paddingBottom: 2,
         "& .MuiTextField-root": { width: "100%" },
       }}
     >
@@ -54,7 +57,10 @@ const Component = () => {
           </Typography>
         </Grid>
         <Grid item xs={12}>
-          Found at: {notification?.Created.toDate().toLocaleString()}
+          Found at: {notification.Created.toDate().getUTCFullYear()}/
+          {notification.Created.toDate().getUTCMonth()}/
+          {notification.Created.toDate().getUTCDate()},{" "}
+          {notification.Created.toDate().toLocaleTimeString()}
         </Grid>
         <Grid item xs={6}>
           <Button
@@ -171,9 +177,11 @@ const columns: GridColDef[] = [
     headerName: "On",
     width: 200,
     valueFormatter: ({ value }) =>
-      `${value.toDate().toLocaleString("en-us", { weekday: "long" })} - ${value
-        .toDate()
-        .toLocaleDateString()}`,
+      `${value.toDate().toLocaleString("en-us", {
+        weekday: "short",
+      })} - ${value.toDate().getUTCFullYear()}/${
+        value.toDate().getUTCMonth() + 1
+      }/${value.toDate().getUTCDate()}`,
   },
   {
     field: "NewState",
