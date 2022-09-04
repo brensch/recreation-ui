@@ -13,7 +13,13 @@ import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid"
 import IconButton from "@mui/material/IconButton"
 import TextField from "@mui/material/TextField"
-import { DataGrid, GridColDef, GridRowId } from "@mui/x-data-grid"
+import {
+  DataGrid,
+  GridColDef,
+  GridRowId,
+  GridSortDirection,
+  GridSortModel,
+} from "@mui/x-data-grid"
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"
 import {
   addDoc,
@@ -43,6 +49,14 @@ const Page = () => {
   const appContext = useContext(AppContext)
   let { user, monitorRequestRows } = appContext!
 
+  // sort schniffs by startdate by default
+  const [sortModel, setSortModel] = React.useState<GridSortModel>([
+    {
+      field: "start",
+      sort: "desc" as GridSortDirection,
+    },
+  ])
+
   // get whether user has notifications turned on
   useEffect(() => {
     if (!user) {
@@ -68,12 +82,16 @@ const Page = () => {
       .catch(console.log)
   }, [user])
 
+  // i hate time
+  // for the requests to work in firestore we need them all to line up with 0 UTC
   function getDates(startDate: Date, stopDate: Date) {
-    startDate.setUTCHours(0)
-    stopDate.setUTCHours(0)
     var dateArray: Date[] = []
     var currentDate = new Date(startDate)
     var targetDate = new Date(stopDate)
+    currentDate.setUTCDate(currentDate.getDate())
+    targetDate.setUTCDate(targetDate.getDate())
+    currentDate.setUTCHours(0)
+    targetDate.setUTCHours(0)
     while (currentDate <= targetDate) {
       dateArray.push(new Date(currentDate))
       currentDate.setDate(currentDate.getDate() + 1)
@@ -92,7 +110,6 @@ const Page = () => {
       UserID: user.uid,
       Name: ground.Name,
     }
-    console.log(monitor)
     addDoc(collection(db, "monitor_requests"), monitor)
       .then(() => {})
       .finally(() => {
@@ -209,6 +226,8 @@ const Page = () => {
             rows={monitorRequestRows}
             columns={columns}
             hideFooterPagination
+            sortModel={sortModel}
+            onSortModelChange={setSortModel}
             components={{
               NoRowsOverlay: CustomNoRowsOverlay,
             }}
@@ -218,7 +237,6 @@ const Page = () => {
                 setSelectedRow(null)
                 return
               }
-              console.log(selection)
               setSelectedRow(selection[0])
             }}
             sx={{
@@ -316,13 +334,15 @@ const columns: GridColDef[] = [
     field: "start",
     headerName: "Start",
     width: 100,
-    valueFormatter: ({ value }) => value.toLocaleDateString(),
+    valueFormatter: ({ value }) =>
+      `${value.getUTCFullYear()}/${value.getUTCMonth()}/${value.getUTCDate()}`,
   },
   {
     field: "end",
     headerName: "End",
     width: 100,
-    valueFormatter: ({ value }) => value.toLocaleDateString(),
+    valueFormatter: ({ value }) =>
+      `${value.getUTCFullYear()}/${value.getUTCMonth()}/${value.getUTCDate()}`,
   },
 ]
 
