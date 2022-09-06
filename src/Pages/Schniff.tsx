@@ -80,7 +80,7 @@ const Component = () => {
     setLoading(true)
     const monitor = {
       Dates: getDates(start, end),
-      Ground: ground.ID,
+      Ground: ground.EntityID,
       UserID: user.uid,
       Name: ground.Name,
     }

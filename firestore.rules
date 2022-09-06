@@ -4,7 +4,7 @@ service cloud.firestore {
     match /users/{user} {
       allow read, write: if request.auth.uid == user;
     }
-    match /grounds_summary/{grounds_summary} {
+    match /entity_summary/{entity_summary} {
       allow read: if request.auth != null;
     }
     match /notifications/{notification} {

@@ -54,11 +54,13 @@ const brownTheme = createTheme({
 })
 
 export interface GroundSummary {
-  ID: string
+  EntityID: string
+  EntityType: string
   Name: string
   City: string
   Lat: string
   Lon: string
+  ParentID: string
 }
 
 export interface CampsiteDelta {
@@ -119,21 +121,13 @@ function App() {
   useEffect(() => {
     const docRef = doc(
       db,
-      FirestoreCollections.GROUNDS_SUMMARY,
-      FirestoreCollections.GROUNDS_SUMMARY,
+      FirestoreCollections.ENTITY_SUMMARY,
+      FirestoreCollections.SUMMARY_DOC,
     )
     getDoc(docRef)
       .then((snap) => {
-        let campgrounds: GroundSummary[] = snap.data()!.GroundSummaries
-        setCampgrounds(
-          campgrounds.map((campground) => ({
-            ID: campground.ID,
-            Name: campground.Name.toLocaleLowerCase(),
-            City: campground.City,
-            Lat: campground.Lat,
-            Lon: campground.Lon,
-          })),
-        )
+        let campgrounds: GroundSummary[] = snap.data()!.Summary
+        setCampgrounds(campgrounds)
       })
       .catch(console.log)
   }, [user])

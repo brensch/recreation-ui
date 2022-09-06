@@ -2,7 +2,8 @@ export const FirestoreCollections = {
   USER_INFO: "users",
   MONITOR_REQUESTS: "monitor_requests",
   NOTIFICATIONS: "notifications",
-  GROUNDS_SUMMARY: "grounds_summary",
+  ENTITY_SUMMARY: "entity_summary",
+  SUMMARY_DOC: "summary",
 }
 
 export const VAPIDKEY =
