@@ -3,7 +3,7 @@ import InfoIcon from "@mui/icons-material/Info"
 import InsertLinkIcon from "@mui/icons-material/InsertLink"
 import ShareIcon from "@mui/icons-material/Share"
 import { Typography } from "@mui/material"
-import Autocomplete from "@mui/material/Autocomplete"
+import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete"
 import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
 import Card from "@mui/material/Card"
@@ -30,7 +30,10 @@ import { db } from ".."
 import { AppContext, GroundSummary } from "../App"
 import useTitle from "../useTitle"
 
-const Page = () => {
+const filterOptions = createFilterOptions<GroundSummary>({
+  limit: 30,
+})
+const Component = () => {
   const [ground, setGround] = useState<GroundSummary | null>(null)
   const [start, setStart] = useState<Date | null>(null)
   const [end, setEnd] = useState<Date | null>(null)
@@ -105,6 +108,7 @@ const Page = () => {
             Add Schniffer
           </Typography>
         </Grid>
+
         {appContext &&
           appContext.userInformation &&
           appContext!.userInformation!.FirebaseCloudMessagingTokens!.length ===
@@ -133,6 +137,7 @@ const Page = () => {
             getOptionLabel={(option: GroundSummary) =>
               `${option.Name}, ${option.City}`
             }
+            filterOptions={filterOptions}
             id="campground"
             renderInput={(params: any) => (
               <TextField
@@ -332,4 +337,4 @@ function CustomNoRowsOverlay() {
   )
 }
 
-export default Page
+export default Component
