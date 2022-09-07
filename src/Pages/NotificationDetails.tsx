@@ -179,6 +179,7 @@ const columns: GridColDef[] = [
     valueFormatter: ({ value }) =>
       `${value.toDate().toLocaleString("en-us", {
         weekday: "short",
+        timeZone: "UTC",
       })} - ${value.toDate().getUTCFullYear()}/${
         value.toDate().getUTCMonth() + 1
       }/${value.toDate().getUTCDate()}`,
