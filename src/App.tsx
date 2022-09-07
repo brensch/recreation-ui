@@ -72,12 +72,27 @@ export interface CampsiteDelta {
   SiteName: string
 }
 
+export interface MonitorRequest {
+  ID: string
+  Dates: Timestamp[]
+  Ground: string
+  UserID: string
+  Name: string
+  SiteIDs: string[]
+}
+
+export interface MonitorRequestProc {
+  Delta: CampsiteDelta
+  Monitor: MonitorRequest
+}
+
 export interface Notification {
   Acked: Timestamp
   Created: Timestamp
-  Deltas: CampsiteDelta[]
+  MonitorRequestProcs: MonitorRequestProc[]
   Title: string
-  User: string
+  GroundName: string
+  UserID: string
   ID: string
 }
 
@@ -105,6 +120,7 @@ function App() {
     useState<UserInformation | null>(null)
   const [checkedUserInfo, setCheckedUserInfo] = useState(false)
 
+  // subscribe to user state
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((newUser) => {
       setUser(newUser)
@@ -182,14 +198,16 @@ function App() {
   useEffect(() => {
     if (!user) return
 
+    // note this requires an index
     const q = query(
       collection(db, FirestoreCollections.NOTIFICATIONS),
-      where("User", "==", user.uid),
+      where("UserID", "==", user.uid),
       where("Acked", "<", new Date(0)),
     )
     const unsub = onSnapshot(
       q,
       (querySnapshot) => {
+        console.log("got snapshot")
         setNotifications(
           querySnapshot.docs.map((doc) => {
             let notification = doc.data() as any as Notification
@@ -199,6 +217,8 @@ function App() {
         )
       },
       (error: any) => {
+        console.log("got error", error)
+
         logEvent(analytics, "error subscribing to notifications", {
           error: error,
         })

@@ -21,13 +21,19 @@ import {
   GridSortModel,
 } from "@mui/x-data-grid"
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"
-import { addDoc, collection, deleteDoc, doc } from "firebase/firestore"
+import {
+  collection,
+  deleteDoc,
+  doc,
+  setDoc,
+  Timestamp,
+} from "firebase/firestore"
 import React, { useContext, useState } from "react"
 import { CopyToClipboard } from "react-copy-to-clipboard"
 import { useNavigate } from "react-router-dom"
 
 import { db } from ".."
-import { AppContext, GroundSummary } from "../App"
+import { AppContext, GroundSummary, MonitorRequest } from "../App"
 import useTitle from "../useTitle"
 
 const filterOptions = createFilterOptions<GroundSummary>({
@@ -58,7 +64,7 @@ const Component = () => {
   // i hate time
   // for the requests to work in firestore we need them all to line up with 0 UTC
   function getDates(startDate: Date, stopDate: Date) {
-    var dateArray: Date[] = []
+    var dateArray: Timestamp[] = []
     var currentDate = new Date(startDate)
     var targetDate = new Date(stopDate)
     currentDate.setUTCDate(currentDate.getDate())
@@ -66,7 +72,7 @@ const Component = () => {
     currentDate.setUTCHours(0)
     targetDate.setUTCHours(0)
     while (currentDate <= targetDate) {
-      dateArray.push(new Date(currentDate))
+      dateArray.push(Timestamp.fromDate(currentDate))
       currentDate.setDate(currentDate.getDate() + 1)
     }
 
@@ -78,13 +84,18 @@ const Component = () => {
       return
     }
     setLoading(true)
-    const monitor = {
+    // create doc first to get its id
+    const docRef = doc(collection(db, "monitor_requests"))
+    const monitor: MonitorRequest = {
       Dates: getDates(start, end),
       Ground: ground.EntityID,
       UserID: user.uid,
       Name: ground.Name,
+      SiteIDs: [],
+      ID: docRef.id,
     }
-    addDoc(collection(db, "monitor_requests"), monitor)
+
+    setDoc(docRef, monitor)
       .then(() => {})
       .finally(() => {
         setGround(null)

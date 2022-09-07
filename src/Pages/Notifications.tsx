@@ -71,7 +71,7 @@ const Component = () => {
             autoHeight
             rows={appContext!.notifications}
             columns={columns}
-            hideFooterPagination
+            // hideFooterPagination
             getRowId={(row: Notification) => row.ID}
             sortModel={sortModel}
             onSortModelChange={setSortModel}
@@ -125,7 +125,10 @@ const columns: GridColDef[] = [
   {
     field: "Deltas",
     headerName: "Changes",
-    valueGetter: ({ value }) => value.length,
+    valueGetter: (params) => {
+      let notification: Notification = params.row
+      return notification.MonitorRequestProcs.length
+    },
   },
 ]
 

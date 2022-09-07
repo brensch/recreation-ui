@@ -8,7 +8,7 @@ import React, { useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 
 import { db } from ".."
-import { CampsiteDelta, Notification } from "../App"
+import { MonitorRequestProc, Notification } from "../App"
 import useTitle from "../useTitle"
 
 const Component = () => {
@@ -34,8 +34,8 @@ const Component = () => {
     updateDoc(doc(db, "notifications", params.id), {
       Acked: new Date(),
     })
-      .then(() => navigate("/notifications"))
       .catch((err) => console.log(err))
+      .finally(() => navigate("/notifications"))
   }
 
   if (!notification) return null
@@ -69,7 +69,7 @@ const Component = () => {
             color="secondary"
             onClick={() =>
               window.open(
-                `https://www.recreation.gov/camping/campgrounds/${notification?.Deltas[0].GroundID}`,
+                `https://www.recreation.gov/camping/campgrounds/${notification?.MonitorRequestProcs[0].Delta.GroundID}`,
                 "_blank",
               )
             }
@@ -95,19 +95,19 @@ const Component = () => {
         <Grid item xs={12}>
           <DataGrid
             autoHeight
-            rows={notification.Deltas.sort((a, b) => {
+            rows={notification.MonitorRequestProcs.sort((a, b) => {
               // if a less than b
-              if (a.SiteID < b.SiteID) return -1
-              if (a.SiteID > b.SiteID) return 1
-              if (a.DateAffected < b.DateAffected) return -1
-              if (a.DateAffected > b.DateAffected) return 1
+              if (a.Delta.SiteID < b.Delta.SiteID) return -1
+              if (a.Delta.SiteID > b.Delta.SiteID) return 1
+              if (a.Delta.DateAffected < b.Delta.DateAffected) return -1
+              if (a.Delta.DateAffected > b.Delta.DateAffected) return 1
               return 0
             })}
-            getRowId={(row: CampsiteDelta) =>
-              `${row.DateAffected}-${row.SiteID}-${row.NewState}`
+            getRowId={(row: MonitorRequestProc) =>
+              `${row.Delta.DateAffected}-${row.Delta.SiteID}-${row.Delta.NewState}`
             }
             columns={columns}
-            hideFooterPagination
+            // hideFooterPagination
             sx={{
               width: "100%",
               borderColor: "transparent",
@@ -149,11 +149,11 @@ const columns: GridColDef[] = [
     field: "SiteID",
     headerName: "Site",
     renderCell: (params) => {
-      let delta: CampsiteDelta = params.row
-      if (delta.SiteName) {
-        return delta.SiteName
+      let proc: MonitorRequestProc = params.row
+      if (proc.Delta.SiteName) {
+        return proc.Delta.SiteName
       }
-      return delta.SiteID
+      return proc.Delta.SiteID
     },
   },
   {
@@ -161,10 +161,10 @@ const columns: GridColDef[] = [
     headerName: "Links",
     // flex: 1,
     renderCell: (params) => {
-      let delta: CampsiteDelta = params.row
+      let proc: MonitorRequestProc = params.row
       return (
         <Link
-          href={`https://www.recreation.gov/camping/campsites/${delta.SiteID}`}
+          href={`https://www.recreation.gov/camping/campsites/${proc.Delta.SiteID}`}
           target="_blank"
         >
           See site
@@ -176,6 +176,10 @@ const columns: GridColDef[] = [
     field: "DateAffected",
     headerName: "On",
     width: 200,
+    valueGetter: (params) => {
+      let proc: MonitorRequestProc = params.row
+      return proc.Delta.DateAffected
+    },
     valueFormatter: ({ value }) =>
       `${value.toDate().toLocaleString("en-us", {
         weekday: "short",
@@ -189,12 +193,22 @@ const columns: GridColDef[] = [
     headerName: "Change",
     width: 200,
     renderCell: (params) => {
-      let delta: CampsiteDelta = params.row
-      return `${StateMapping[delta.OldState]} -> ${
-        StateMapping[delta.NewState]
+      let proc: MonitorRequestProc = params.row
+      return `${StateMapping[proc.Delta.OldState]} -> ${
+        StateMapping[proc.Delta.NewState]
       }`
     },
   },
+  // TODO: add more details about schniffs
+  // {
+  //   field: "Schniff",
+  //   headerName: "Schniff Responsible",
+  //   width: 200,
+  //   valueGetter: (params) => {
+  //     let proc: MonitorRequestProc = params.row
+  //     return proc.Monitor.ID
+  //   },
+  // },
 ]
 
 export default Component
