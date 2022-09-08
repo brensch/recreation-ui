@@ -1,4 +1,3 @@
-import FaceIcon from "@mui/icons-material/Face"
 import ManageSearchIcon from "@mui/icons-material/ManageSearch"
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone"
 import SettingsIcon from "@mui/icons-material/Settings"
@@ -12,7 +11,7 @@ import Toolbar from "@mui/material/Toolbar"
 import Tooltip from "@mui/material/Tooltip"
 import Typography from "@mui/material/Typography"
 import React, { useContext } from "react"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 
 import { AppContext } from "../App"
 import { ReactComponent as Logo } from "../logo.svg"
@@ -25,10 +24,10 @@ function TentIcon(props: SvgIconProps) {
   )
 }
 
-// const pages = ["explanation", "schniff"]
-
 const Component = () => {
   let navigate = useNavigate()
+  let location = useLocation()
+
   const appContext = useContext(AppContext)
 
   return (
@@ -48,7 +47,6 @@ const Component = () => {
             component="a"
             onClick={() => navigate("/")}
             sx={{
-              mr: 2,
               // display: { xs: "flex", md: "none" },
               flexGrow: 1,
               fontFamily: "monospace",
@@ -60,26 +58,35 @@ const Component = () => {
           >
             SCHNIFFER
           </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}></Box>
-          {appContext!.user ? (
+
+          {appContext!.user && (
             <React.Fragment>
-              <Box sx={{ flexGrow: 0 }}>
+              <Box
+                sx={{
+                  flexGrow: 0,
+                  borderBottom: location.pathname.startsWith("/schniff")
+                    ? 2
+                    : 0,
+                }}
+              >
                 <Tooltip title="Settings">
-                  <IconButton
-                    onClick={() => navigate("/schniff")}
-                    sx={{ p: 0 }}
-                  >
-                    <ManageSearchIcon
-                      sx={{ color: "secondary.light", display: "block", ml: 2 }}
-                    />
+                  <IconButton onClick={() => navigate("/schniff")} sx={{}}>
+                    <ManageSearchIcon sx={{ color: "secondary.light" }} />
                   </IconButton>
                 </Tooltip>
               </Box>
-              <Box sx={{ flexGrow: 0 }}>
+              <Box
+                sx={{
+                  flexGrow: 0,
+                  borderBottom: location.pathname.startsWith("/notifications")
+                    ? 2
+                    : 0,
+                }}
+              >
                 <Tooltip title="See notifications">
                   <IconButton
                     onClick={() => navigate(`/notifications`)}
-                    sx={{ p: 0 }}
+                    sx={{ p: 1 }}
                   >
                     <Badge
                       badgeContent={appContext?.notifications.length}
@@ -89,32 +96,30 @@ const Component = () => {
                         sx={{
                           color: "secondary.light",
                           display: "block",
-                          ml: 2,
                         }}
                       />
                     </Badge>
                   </IconButton>
                 </Tooltip>
               </Box>
-              <Box sx={{ flexGrow: 0 }}>
+              <Box
+                sx={{
+                  flexGrow: 0,
+                  borderBottom: location.pathname.startsWith("/profile")
+                    ? 2
+                    : 0,
+                }}
+              >
                 <Tooltip title="Settings">
                   <IconButton
                     onClick={() => navigate("/profile")}
-                    sx={{ p: 0 }}
+                    sx={{ p: 1 }}
                   >
-                    <SettingsIcon
-                      sx={{ color: "secondary.light", display: "block", ml: 2 }}
-                    />
+                    <SettingsIcon sx={{ color: "secondary.light" }} />
                   </IconButton>
                 </Tooltip>
               </Box>
             </React.Fragment>
-          ) : (
-            <Box sx={{ flexGrow: 0 }}>
-              <IconButton sx={{ p: 0 }}>
-                <FaceIcon sx={{ my: 2, color: "primary", display: "block" }} />
-              </IconButton>
-            </Box>
           )}
         </Toolbar>
       </Container>

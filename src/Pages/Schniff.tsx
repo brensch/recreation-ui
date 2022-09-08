@@ -1,17 +1,9 @@
-import DeleteIcon from "@mui/icons-material/Delete"
-import InfoIcon from "@mui/icons-material/Info"
-import InsertLinkIcon from "@mui/icons-material/InsertLink"
-import ShareIcon from "@mui/icons-material/Share"
 import { Typography } from "@mui/material"
 import Autocomplete, { createFilterOptions } from "@mui/material/Autocomplete"
 import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
-import Card from "@mui/material/Card"
-import CardActions from "@mui/material/CardActions"
-import CardHeader from "@mui/material/CardHeader"
 import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid"
-import IconButton from "@mui/material/IconButton"
 import TextField from "@mui/material/TextField"
 import {
   DataGrid,
@@ -21,15 +13,8 @@ import {
   GridSortModel,
 } from "@mui/x-data-grid"
 import { DatePicker } from "@mui/x-date-pickers/DatePicker"
-import {
-  collection,
-  deleteDoc,
-  doc,
-  setDoc,
-  Timestamp,
-} from "firebase/firestore"
+import { collection, doc, setDoc, Timestamp } from "firebase/firestore"
 import React, { useContext, useState } from "react"
-import { CopyToClipboard } from "react-copy-to-clipboard"
 import { useNavigate } from "react-router-dom"
 
 import { db } from ".."
@@ -44,12 +29,12 @@ const Component = () => {
   const [start, setStart] = useState<Date | null>(null)
   const [end, setEnd] = useState<Date | null>(null)
   const [loading, setLoading] = useState(false)
-  const [selectedRow, setSelectedRow] = useState<GridRowId | null>(null)
-  const [copied, setCopied] = useState(false)
 
   let navigate = useNavigate()
   const appContext = useContext(AppContext)
-  let { user, monitorRequestRows } = appContext!
+  let { user, monitorRequests } = appContext!
+
+  console.log(monitorRequests)
 
   // sort schniffs by startdate by default
   const [sortModel, setSortModel] = React.useState<GridSortModel>([
@@ -59,7 +44,7 @@ const Component = () => {
     },
   ])
 
-  useTitle("create")
+  useTitle("schniff")
 
   // i hate time
   // for the requests to work in firestore we need them all to line up with 0 UTC
@@ -205,21 +190,21 @@ const Component = () => {
         <Grid item xs={12}>
           <DataGrid
             autoHeight
-            rows={monitorRequestRows}
+            rows={monitorRequests}
             columns={columns}
             hideFooterPagination
             sortModel={sortModel}
             onSortModelChange={setSortModel}
+            getRowId={(row: MonitorRequest) => row.ID}
             components={{
               NoRowsOverlay: CustomNoRowsOverlay,
             }}
-            onSelectionModelChange={(selection) => {
-              setCopied(false)
+            onSelectionModelChange={(selection: GridRowId[]) => {
               if (selection.length === 0) {
-                setSelectedRow(null)
                 return
               }
-              setSelectedRow(selection[0])
+
+              navigate(`/schniff/${selection[0]}`)
             }}
             sx={{
               borderColor: "transparent",
@@ -238,84 +223,21 @@ const Component = () => {
             }}
           />
         </Grid>
-        {selectedRow && typeof selectedRow === "number" && (
-          <Grid item xs={12}>
-            <Card variant="outlined">
-              <CardHeader
-                avatar={<InfoIcon />}
-                title={monitorRequestRows[selectedRow.valueOf() - 1].ground}
-                subheader={`${monitorRequestRows[
-                  selectedRow.valueOf() - 1
-                ].start.toLocaleDateString()} - ${monitorRequestRows[
-                  selectedRow.valueOf() - 1
-                ].end.toLocaleDateString()}`}
-              />
-
-              <CardActions disableSpacing>
-                <IconButton
-                  aria-label="stop schniffing"
-                  onClick={() => {
-                    setSelectedRow(null)
-                    deleteDoc(
-                      doc(
-                        db,
-                        "monitor_requests",
-                        monitorRequestRows[selectedRow.valueOf() - 1].docID,
-                      ),
-                    )
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
-                <IconButton
-                  aria-label="visit ground page"
-                  onClick={() =>
-                    window.open(
-                      `https://www.recreation.gov/camping/campgrounds/${
-                        monitorRequestRows[selectedRow.valueOf() - 1].groundID
-                      }`,
-                      "_blank",
-                      "noopener,noreferrer",
-                    )
-                  }
-                >
-                  <InsertLinkIcon />
-                </IconButton>
-                <CopyToClipboard
-                  text={`I'm schniffing for a campsite at ${
-                    monitorRequestRows[selectedRow.valueOf() - 1].ground
-                  } from ${monitorRequestRows[
-                    selectedRow.valueOf() - 1
-                  ].start.toLocaleDateString()} - ${monitorRequestRows[
-                    selectedRow.valueOf() - 1
-                  ].end.toLocaleDateString()}. Check it out yourself: schniffer: schniffer.com campground: recreation.gov/camping/campgrounds/${
-                    monitorRequestRows[selectedRow.valueOf() - 1].groundID
-                  }`}
-                  onCopy={() => setCopied(true)}
-                >
-                  <IconButton aria-label="share">
-                    <ShareIcon />
-                  </IconButton>
-                </CopyToClipboard>
-
-                {copied && (
-                  <Typography paddingLeft={3}>Copied to clipboard</Typography>
-                )}
-              </CardActions>
-            </Card>
-          </Grid>
-        )}
       </Grid>
     </Container>
   )
 }
 
 const columns: GridColDef[] = [
-  { field: "ground", headerName: "Campground", width: 250 },
+  { field: "Name", headerName: "Campground", width: 250 },
   {
     field: "start",
     headerName: "Start",
     width: 100,
+    valueGetter: (params) => {
+      let schniff: MonitorRequest = params.row
+      return schniff.Dates[0].toDate()
+    },
     valueFormatter: ({ value }) =>
       `${value.getUTCFullYear()}/${
         value.getUTCMonth() + 1
@@ -325,6 +247,10 @@ const columns: GridColDef[] = [
     field: "end",
     headerName: "End",
     width: 100,
+    valueGetter: (params) => {
+      let schniff: MonitorRequest = params.row
+      return schniff.Dates[schniff.Dates.length - 1].toDate()
+    },
     valueFormatter: ({ value }) =>
       `${value.getUTCFullYear()}/${
         value.getUTCMonth() + 1

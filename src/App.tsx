@@ -27,6 +27,7 @@ import NotificationDetails from "./Pages/NotificationDetails"
 import Notifications from "./Pages/Notifications"
 import Settings from "./Pages/Settings"
 import Schniff from "./Pages/Schniff"
+import SchniffDetails from "./Pages/SchniffDetails"
 import { analytics } from "."
 import { FirestoreCollections } from "./constants"
 
@@ -100,7 +101,7 @@ interface AppContextInterface {
   grounds: GroundSummary[]
   user: User | null
   userInformation: UserInformation | null
-  monitorRequestRows: any[]
+  monitorRequests: MonitorRequest[]
   notifications: Notification[]
 }
 
@@ -149,7 +150,7 @@ function App() {
   }, [user])
 
   // subscribe to monitors
-  const [rows, setRows] = useState<any[]>([])
+  const [monitorRequests, setMonitorRequests] = useState<MonitorRequest[]>([])
   useEffect(() => {
     if (!user) {
       return
@@ -161,33 +162,39 @@ function App() {
     )
 
     const unsub = onSnapshot(q, (querySnapshot) => {
-      let newRows: any[] = []
+      // let newRows: any[] = []
 
-      var i = 1
-      querySnapshot.forEach((doc) => {
-        let data = doc.data()
-        let dates: Timestamp[] = data.Dates
-        newRows.push({
-          id: i,
-          ground: data.Name,
-          start: dates
-            .reduce(function (a, b) {
-              return a < b ? a : b
-            })
-            .toDate(),
-          end: dates
-            .reduce(function (a, b) {
-              return a > b ? a : b
-            })
-            .toDate(),
-          groundID: data.Ground,
-          docID: doc.id,
-        })
+      let monitorRequests = querySnapshot.docs.map(
+        (snap) => snap.data() as any as MonitorRequest,
+      )
+      console.log(monitorRequests)
+      setMonitorRequests(monitorRequests)
 
-        i++
-      })
+      // var i = 1
+      // querySnapshot.forEach((doc) => {
+      //   let data = doc.data()
+      //   let dates: Timestamp[] = data.Dates
+      //   newRows.push({
+      //     id: i,
+      //     ground: data.Name,
+      //     start: dates
+      //       .reduce(function (a, b) {
+      //         return a < b ? a : b
+      //       })
+      //       .toDate(),
+      //     end: dates
+      //       .reduce(function (a, b) {
+      //         return a > b ? a : b
+      //       })
+      //       .toDate(),
+      //     groundID: data.Ground,
+      //     docID: doc.id,
+      //   })
 
-      setRows(newRows)
+      //   i++
+      // })
+
+      // setMonitorRequests(newRows)
     })
 
     return () => unsub()
@@ -275,7 +282,7 @@ function App() {
     grounds: campgrounds,
     user: user,
     userInformation: userInformation,
-    monitorRequestRows: rows,
+    monitorRequests: monitorRequests,
     notifications: notifications,
   }
 
@@ -331,6 +338,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Schniff />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="schniff/:id"
+            element={
+              <ProtectedRoute>
+                <SchniffDetails />
               </ProtectedRoute>
             }
           />

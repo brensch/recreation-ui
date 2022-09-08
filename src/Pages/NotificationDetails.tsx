@@ -16,7 +16,7 @@ const Component = () => {
 
   let params = useParams()
   let navigate = useNavigate()
-  useTitle("details")
+  useTitle("notification details")
 
   // get notification detail on load
   useEffect(() => {
