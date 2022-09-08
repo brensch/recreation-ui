@@ -1,15 +1,12 @@
 import FaceIcon from "@mui/icons-material/Face"
-import MenuIcon from "@mui/icons-material/Menu"
+import ManageSearchIcon from "@mui/icons-material/ManageSearch"
 import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone"
 import SettingsIcon from "@mui/icons-material/Settings"
 import AppBar from "@mui/material/AppBar"
 import Badge from "@mui/material/Badge"
 import Box from "@mui/material/Box"
-import Button from "@mui/material/Button"
 import Container from "@mui/material/Container"
 import IconButton from "@mui/material/IconButton"
-import Menu from "@mui/material/Menu"
-import MenuItem from "@mui/material/MenuItem"
 import SvgIcon, { SvgIconProps } from "@mui/material/SvgIcon"
 import Toolbar from "@mui/material/Toolbar"
 import Tooltip from "@mui/material/Tooltip"
@@ -28,21 +25,11 @@ function TentIcon(props: SvgIconProps) {
   )
 }
 
-const pages = ["explanation", "schniff"]
+// const pages = ["explanation", "schniff"]
 
 const Component = () => {
   let navigate = useNavigate()
   const appContext = useContext(AppContext)
-
-  const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null)
-
-  const handleOpenNavMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElNav(event.currentTarget)
-  }
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null)
-  }
 
   return (
     <AppBar
@@ -54,75 +41,7 @@ const Component = () => {
     >
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <TentIcon
-            sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}
-            onClick={() => navigate("/")}
-          />
-          <Typography
-            variant="h6"
-            noWrap
-            component="a"
-            onClick={() => navigate("/")}
-            // href="/"
-            sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontFamily: "monospace",
-              fontWeight: 700,
-              letterSpacing: ".3rem",
-              color: "secondary.main",
-              textDecoration: "none",
-            }}
-          >
-            SCHNIFFER
-          </Typography>
-
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="secondary"
-            >
-              <MenuIcon />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
-              open={Boolean(anchorElNav)}
-              onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: "block", md: "none" },
-              }}
-            >
-              {pages.map((page) => (
-                <MenuItem
-                  key={page}
-                  onClick={() => {
-                    navigate(page)
-                    handleCloseNavMenu()
-                  }}
-                >
-                  <Typography textAlign="center">{page}</Typography>
-                </MenuItem>
-              ))}
-            </Menu>
-          </Box>
-          <TentIcon
-            sx={{ display: { xs: "flex", md: "none" }, mr: 1 }}
-            onClick={() => navigate("/")}
-          />
+          <TentIcon sx={{ mr: 1 }} onClick={() => navigate("/")} />
           <Typography
             variant="h5"
             noWrap
@@ -130,7 +49,7 @@ const Component = () => {
             onClick={() => navigate("/")}
             sx={{
               mr: 2,
-              display: { xs: "flex", md: "none" },
+              // display: { xs: "flex", md: "none" },
               flexGrow: 1,
               fontFamily: "monospace",
               fontWeight: 700,
@@ -141,22 +60,21 @@ const Component = () => {
           >
             SCHNIFFER
           </Typography>
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
-            {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={() => {
-                  navigate(page)
-                  handleCloseNavMenu()
-                }}
-                sx={{ my: 2, color: "secondary.light", display: "block" }}
-              >
-                {page}
-              </Button>
-            ))}
-          </Box>
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}></Box>
           {appContext!.user ? (
             <React.Fragment>
+              <Box sx={{ flexGrow: 0 }}>
+                <Tooltip title="Settings">
+                  <IconButton
+                    onClick={() => navigate("/schniff")}
+                    sx={{ p: 0 }}
+                  >
+                    <ManageSearchIcon
+                      sx={{ color: "secondary.light", display: "block", ml: 2 }}
+                    />
+                  </IconButton>
+                </Tooltip>
+              </Box>
               <Box sx={{ flexGrow: 0 }}>
                 <Tooltip title="See notifications">
                   <IconButton
@@ -171,6 +89,7 @@ const Component = () => {
                         sx={{
                           color: "secondary.light",
                           display: "block",
+                          ml: 2,
                         }}
                       />
                     </Badge>
