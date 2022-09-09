@@ -7,7 +7,15 @@ import IconButton from "@mui/material/IconButton"
 import Stack from "@mui/material/Stack"
 import { DataGrid, GridColDef } from "@mui/x-data-grid"
 import { logEvent } from "firebase/analytics"
-import { deleteDoc, doc, onSnapshot, Timestamp } from "firebase/firestore"
+import {
+  collection,
+  deleteDoc,
+  doc,
+  onSnapshot,
+  query,
+  Timestamp,
+  where,
+} from "firebase/firestore"
 import React, { useContext, useEffect, useState } from "react"
 import { useNavigate, useParams } from "react-router-dom"
 
@@ -59,20 +67,22 @@ const Component = () => {
   // subscribe to user object (for tokens etc)
   useEffect(() => {
     if (!user || !schniff) return
-
-    console.log(FirestoreCollections.AVAILABILITY, schniff?.Ground)
-
-    const docRef = doc(db, FirestoreCollections.AVAILABILITY, schniff?.Ground)
+    const q = query(
+      collection(db, FirestoreCollections.AVAILABILITY),
+      where("GroundID", "==", schniff?.Ground),
+    )
     const unsub = onSnapshot(
-      docRef,
-      (doc) => {
-        if (doc.data() === undefined) return
-        let availabilities: SiteAvailability[] = doc.data()!
-          .Availabilities as any as SiteAvailability[]
-        setAvailabilities(availabilities)
+      q,
+      (querySnapshot) => {
+        let allAvailabilities: SiteAvailability[] = []
+        querySnapshot.forEach((doc) => {
+          allAvailabilities = allAvailabilities.concat(
+            doc.data()!.Availabilities as any as SiteAvailability[],
+          )
+        })
+        setAvailabilities(allAvailabilities)
       },
       (error: any) => {
-        console.log(error)
         logEvent(analytics, "error subscribing to user object", {
           error: error,
         })

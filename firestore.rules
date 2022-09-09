@@ -20,7 +20,7 @@ service cloud.firestore {
         && (monitor == request.resource.data.ID);
       allow read: if request.auth.uid == resource.data.UserID;
     }
-    match /availability/{campground} {
+    match /availability_by_month/{id} {
       allow read: if request.auth != null;
     }
 

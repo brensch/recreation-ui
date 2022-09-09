@@ -4,7 +4,7 @@ export const FirestoreCollections = {
   NOTIFICATIONS: "notifications",
   ENTITY_SUMMARY: "entity_summary",
   SUMMARY_DOC: "summary",
-  AVAILABILITY: "availability",
+  AVAILABILITY: "availability_by_month",
 }
 
 export const VAPIDKEY =
