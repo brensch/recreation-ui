@@ -152,7 +152,7 @@ const Component = () => {
               onChange={(e: SelectChangeEvent) => setDays(e.target.value)}
             >
               {[...Array(14).keys()].map((count) => (
-                <MenuItem value={count + 1}>
+                <MenuItem value={count + 1} key={`daycount-${count}`}>
                   {count + 1} day{count > 0 && "s"}
                 </MenuItem>
               ))}

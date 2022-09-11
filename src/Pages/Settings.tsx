@@ -190,7 +190,6 @@ const Component = () => {
             </Typography>
             <Switch
               color={"secondary"}
-              defaultChecked
               checked={smsEnabled}
               onChange={() => {
                 setSMSState(!smsEnabled)
@@ -206,7 +205,6 @@ const Component = () => {
             <Switch
               disabled={loading}
               color={"secondary"}
-              defaultChecked
               checked={deviceEnrolled}
               onChange={() => {
                 if (!deviceEnrolled) {
@@ -220,12 +218,9 @@ const Component = () => {
           </Stack>
         </Grid>
         <Grid item xs={12}>
-          <Typography variant="body2" component="h2">
+          <Typography variant="body2" component="h2" sx={{ height: "10px" }}>
             <b>Attention Apple-ists:</b>
-          </Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="body2" component="h2">
+            <br />
             Web push{" "}
             <Link
               href="https://9to5mac.com/2022/06/06/ios-16-web-push-notifications-safari-update/"

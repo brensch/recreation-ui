@@ -3,7 +3,8 @@ import MuiAlert, { AlertColor, AlertProps } from "@mui/material/Alert"
 import Snackbar from "@mui/material/Snackbar"
 import { createTheme, ThemeProvider } from "@mui/material/styles"
 import { logEvent } from "firebase/analytics"
-import { getAuth, User } from "firebase/auth"
+import { FirebaseError } from "firebase/app"
+import { AuthError, ErrorFn, getAuth, User } from "firebase/auth"
 import {
   collection,
   doc,
@@ -138,23 +139,12 @@ function App() {
   const [loadingUser, setLoadingUser] = useState(true)
   const [user, setUser] = useState<User | null>(null)
 
-  const handleClose = (
-    event?: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === "clickaway") {
-      return
-    }
-
-    setOpen(false)
-  }
-
+  // FireAlert fires an admiral snackbar alert
   const [alertSeverity, setAlertSeverity] = useState<AlertColor | undefined>(
     undefined,
   )
   const [alertMessage, setAlertMessage] = useState("")
   const [open, setOpen] = React.useState(false)
-
   const FireAlert = (severity: AlertColor, message: string) => {
     setOpen(false)
     setAlertSeverity(severity)
@@ -162,15 +152,36 @@ function App() {
     setOpen(true)
   }
 
+  // used by admiral snackbar to prevent closing on click away.
+  // user must press x instead, think this is desirable.
+  const handleClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string,
+  ) => {
+    if (reason === "clickaway") {
+      return
+    }
+    setOpen(false)
+  }
+
   // subscribe to user state
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((newUser) => {
-      setUser(newUser)
-      setLoadingUser(false)
-      logEvent(analytics, "user logged in", {
-        user: newUser?.email,
-      })
-    })
+    const unsubscribe = auth.onAuthStateChanged(
+      (newUser) => {
+        setUser(newUser)
+        setLoadingUser(false)
+        logEvent(analytics, "user logged in", {
+          user: newUser?.email,
+        })
+      },
+      // suspect this will fail if it actually occurs, no type
+      (err: any) => {
+        logEvent(analytics, "error retrieving campgrounds", {
+          error: err,
+        })
+        FireAlert("error", `Error authorising: ${err.toString()}`)
+      },
+    )
     return () => unsubscribe() // unsubscribing from the listener when the component is unmounting.
   }, [auth])
 
@@ -182,35 +193,45 @@ function App() {
       FirestoreCollections.ENTITY_SUMMARY,
       FirestoreCollections.SUMMARY_DOC,
     )
-    getDoc(docRef)
-      .then((snap) => {
+    getDoc(docRef).then(
+      (snap) => {
         let campgrounds: GroundSummary[] = snap.data()!.Summary
         setCampgrounds(campgrounds)
-      })
-      .catch(console.log)
+      },
+      (err: FirebaseError) => {
+        logEvent(analytics, "error retrieving campgrounds", {
+          error: err,
+        })
+        FireAlert("error", `Error retrieving campgrounds: ${err.message}`)
+      },
+    )
   }, [user])
 
   // subscribe to monitors
   const [monitorRequests, setMonitorRequests] = useState<MonitorRequest[]>([])
   useEffect(() => {
-    if (!user) {
-      return
-    }
+    if (!user) return
 
     const q = query(
       collection(db, FirestoreCollections.MONITOR_REQUESTS),
       where("UserID", "==", user.uid),
     )
 
-    const unsub = onSnapshot(q, (querySnapshot) => {
-      // let newRows: any[] = []
-
-      let monitorRequests = querySnapshot.docs.map(
-        (snap) => snap.data() as any as MonitorRequest,
-      )
-      console.log(monitorRequests)
-      setMonitorRequests(monitorRequests)
-    })
+    const unsub = onSnapshot(
+      q,
+      (querySnapshot) => {
+        let monitorRequests = querySnapshot.docs.map(
+          (snap) => snap.data() as any as MonitorRequest,
+        )
+        setMonitorRequests(monitorRequests)
+      },
+      (err: FirebaseError) => {
+        logEvent(analytics, "error subscribing to monitors", {
+          error: err,
+        })
+        FireAlert("error", `Error getting monitor requests: ${err.message}`)
+      },
+    )
 
     return () => unsub()
   }, [user])
@@ -220,7 +241,7 @@ function App() {
   useEffect(() => {
     if (!user) return
 
-    // note this requires an index
+    // note this requires an index (if rebuilding firestore for instance)
     const q = query(
       collection(db, FirestoreCollections.NOTIFICATIONS),
       where("UserID", "==", user.uid),
@@ -229,7 +250,6 @@ function App() {
     const unsub = onSnapshot(
       q,
       (querySnapshot) => {
-        console.log("got snapshot")
         setNotifications(
           querySnapshot.docs.map((doc) => {
             let notification = doc.data() as any as Notification
@@ -238,12 +258,11 @@ function App() {
           }),
         )
       },
-      (error: any) => {
-        console.log("got error", error)
-
+      (err: FirebaseError) => {
         logEvent(analytics, "error subscribing to notifications", {
-          error: error,
+          error: err,
         })
+        FireAlert("error", err.message)
       },
     )
     return () => unsub()
@@ -253,9 +272,7 @@ function App() {
   const [userInformation, setUserInformation] =
     useState<UserInformation | null>(null)
   useEffect(() => {
-    if (!user) {
-      return
-    }
+    if (!user) return
 
     const docRef = doc(db, FirestoreCollections.USER_INFO, user.uid)
     const unsub = onSnapshot(
@@ -263,22 +280,20 @@ function App() {
       (doc) => {
         setUserInformation(doc.data() as any as UserInformation)
       },
-      (error: any) => {
+      (err: FirebaseError) => {
         logEvent(analytics, "error subscribing to user object", {
-          error: error,
+          error: err,
         })
+        FireAlert("error", err.message)
       },
     )
-
     return () => unsub()
   }, [user])
 
   // subscribe to user object (for tokens etc)
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
   useEffect(() => {
-    if (!user) {
-      return
-    }
+    if (!user) return
 
     const docRef = doc(db, FirestoreCollections.USER_SETTINGS, user.uid)
     const unsub = onSnapshot(
@@ -296,6 +311,7 @@ function App() {
     return () => unsub()
   }, [user])
 
+  // AppContext is used to pass all state we will use throughout multiple views.
   const appContextValues: AppContextInterface = {
     grounds: campgrounds,
     user: user,
@@ -306,6 +322,7 @@ function App() {
     fireAlert: FireAlert,
   }
 
+  // thought it would be fun to do a different load message on each load
   const loadingMessages: string[] = [
     "Enumerating nostrils",
     "Calibrating nostrils",
@@ -319,15 +336,13 @@ function App() {
     "Having rhinoplasty",
     "Recovering from rhinoplasty",
   ]
-
   var randomLoadingMessage =
     loadingMessages[Math.floor(Math.random() * loadingMessages.length)]
-
   if (loadingUser) {
     return (
       <ThemeProvider theme={brownTheme}>
-        <CssBaseline />
         <Container component="main" maxWidth="xs">
+          {/* center some text is this complex */}
           <Grid
             container
             spacing={0}
@@ -345,10 +360,10 @@ function App() {
     )
   }
 
+  // main body
   return (
     <ThemeProvider theme={brownTheme}>
       <AppContext.Provider value={appContextValues}>
-        <CssBaseline />
         <Header />
         <Routes>
           <Route path="" element={<Home />} />
@@ -398,7 +413,7 @@ function App() {
         </Routes>
         <Snackbar
           open={open}
-          // autoHideDuration={6000}
+          autoHideDuration={6000}
           onClose={handleClose}
           anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
         >

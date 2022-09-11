@@ -1,4 +1,5 @@
 import "@fontsource/montserrat"
+import { CssBaseline } from "@mui/material"
 
 import { LocalizationProvider } from "@mui/x-date-pickers"
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
@@ -32,6 +33,7 @@ export const messaging = getMessaging(app)
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement)
 root.render(
   <React.StrictMode>
+    <CssBaseline />
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <Router>
         <App />
