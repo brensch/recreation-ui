@@ -148,6 +148,7 @@ const Component = () => {
         display: "flex",
         flexDirection: "column",
         "& .MuiTextField-root": { width: "100%" },
+        "& .MuiTypography-root": { height: "40px" },
       }}
     >
       <Grid container spacing={2}>
@@ -185,6 +186,21 @@ const Component = () => {
         <Grid item xs={12}>
           <Stack direction="row" spacing={2}>
             <Typography variant="body1" component="h3" sx={{ flex: 1 }}>
+              SMS Notifications:
+            </Typography>
+            <Switch
+              color={"secondary"}
+              defaultChecked
+              checked={smsEnabled}
+              onChange={() => {
+                setSMSState(!smsEnabled)
+              }}
+            />
+          </Stack>
+        </Grid>
+        <Grid item xs={12}>
+          <Stack direction="row" spacing={2}>
+            <Typography variant="body1" component="h3" sx={{ flex: 1 }}>
               Browser Notifications:
             </Typography>
             <Switch
@@ -199,21 +215,6 @@ const Component = () => {
                 }
 
                 unenrolDevice()
-              }}
-            />
-          </Stack>
-        </Grid>
-        <Grid item xs={12}>
-          <Stack direction="row" spacing={2}>
-            <Typography variant="body1" component="h3" sx={{ flex: 1 }}>
-              SMS Notifications:
-            </Typography>
-            <Switch
-              color={"secondary"}
-              defaultChecked
-              checked={smsEnabled}
-              onChange={() => {
-                setSMSState(!smsEnabled)
               }}
             />
           </Stack>
