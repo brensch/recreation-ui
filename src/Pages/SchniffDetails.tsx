@@ -142,7 +142,7 @@ const Component = () => {
         <Grid item xs={12}>
           <Stack direction="row" spacing={1}>
             <Typography variant="h5" component="h3" sx={{ flex: 1 }}>
-              Schniff Details
+              <b>Schniff Details</b>
             </Typography>
             <IconButton
               aria-label="delete"

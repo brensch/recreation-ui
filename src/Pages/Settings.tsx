@@ -11,8 +11,9 @@ import { arrayRemove, arrayUnion, doc, updateDoc } from "firebase/firestore"
 import { getToken } from "firebase/messaging"
 import React, { useContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { logEvent } from "firebase/analytics"
 
-import { db, messaging } from ".."
+import { db, messaging, analytics } from ".."
 import { AppContext } from "../App"
 import { FirestoreCollections, VAPIDKEY } from "../constants"
 import useTitle from "../useTitle"
@@ -59,33 +60,47 @@ const Component = () => {
       )
       .catch((err) => {
         appContext?.fireAlert("error", err.toString())
+        logEvent(analytics, "error asking permissions", {
+          error: err,
+        })
       })
       .finally(() => {
         setLoading(false)
       })
   }
 
+  // check token on page load
   useEffect(() => {
     if (Notification.permission === "default") return
     getToken(messaging, {
       vapidKey: VAPIDKEY,
     })
       .then((token) => setToken(token))
-      .catch((error: FirebaseError) => {
-        if (error.code === "messaging/permission-blocked") {
+      .catch((err: FirebaseError) => {
+        if (err.code === "messaging/permission-blocked") {
           appContext?.fireAlert(
             "warning",
             "You blocked browser notifications on this device. The world is scary, but I'm not scary, I promise.",
           )
+          logEvent(analytics, "permission blocked", {
+            error: err,
+          })
+          return
         }
+
+        appContext?.fireAlert(
+          "error",
+          "Something's gone wrong checking your permissions. Not sure what's up.",
+        )
+        logEvent(analytics, "error checking permission", {
+          error: err,
+        })
       })
   }, [appContext])
 
   // set the device enrolled state based on whether the current token is in the array already
   useEffect(() => {
     if (!token || !appContext?.userSettings) return
-    console.log(token)
-
     setDeviceEnrolled(
       appContext.userSettings.FirebaseCloudMessagingTokens.includes(token),
     )
@@ -93,9 +108,7 @@ const Component = () => {
   }, [token, appContext?.userSettings])
 
   const unenrolDevice = () => {
-    if (!appContext!.user || !token) {
-      return null
-    }
+    if (!appContext!.user || !token) return null
 
     updateDoc(
       doc(db, FirestoreCollections.USER_SETTINGS, appContext!.user!.uid),
@@ -111,13 +124,14 @@ const Component = () => {
       )
       .catch((err: FirebaseError) => {
         appContext?.fireAlert("error", err.message)
+        logEvent(analytics, "error unenrolling device", {
+          error: err,
+        })
       })
   }
 
   const setSMSState = (enabled: boolean) => {
-    if (!appContext!.user || !token) {
-      return null
-    }
+    if (!appContext!.user || !token) return null
 
     updateDoc(
       doc(db, FirestoreCollections.USER_SETTINGS, appContext!.user!.uid),

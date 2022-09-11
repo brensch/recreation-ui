@@ -1,10 +1,10 @@
-import { Container, CssBaseline, Grid, Typography } from "@mui/material"
+import { Container, Grid, Typography } from "@mui/material"
 import MuiAlert, { AlertColor, AlertProps } from "@mui/material/Alert"
 import Snackbar from "@mui/material/Snackbar"
 import { createTheme, ThemeProvider } from "@mui/material/styles"
 import { logEvent } from "firebase/analytics"
 import { FirebaseError } from "firebase/app"
-import { AuthError, ErrorFn, getAuth, User } from "firebase/auth"
+import { getAuth, User } from "firebase/auth"
 import {
   collection,
   doc,
@@ -52,7 +52,7 @@ const brownTheme = createTheme({
       // May go back to this one day
       // fontFamily: "Segoe UI",
       fontFamily: "Montserrat",
-      textTransform: "none",
+      // textTransform: "none",
     },
   },
 })
@@ -176,7 +176,7 @@ function App() {
       },
       // suspect this will fail if it actually occurs, no type
       (err: any) => {
-        logEvent(analytics, "error retrieving campgrounds", {
+        logEvent(analytics, "authorising", {
           error: err,
         })
         FireAlert("error", `Error authorising: ${err.toString()}`)
@@ -188,6 +188,8 @@ function App() {
   // get campground list
   const [campgrounds, setCampgrounds] = useState<GroundSummary[]>([])
   useEffect(() => {
+    if (!user) return
+
     const docRef = doc(
       db,
       FirestoreCollections.ENTITY_SUMMARY,
