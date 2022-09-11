@@ -1,5 +1,6 @@
 export const FirestoreCollections = {
   USER_INFO: "users",
+  USER_SETTINGS: "users_settings",
   MONITOR_REQUESTS: "monitor_requests",
   NOTIFICATIONS: "notifications",
   ENTITY_SUMMARY: "entity_summary",

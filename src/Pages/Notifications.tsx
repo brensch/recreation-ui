@@ -1,8 +1,9 @@
-import { Typography } from "@mui/material"
+import DoneAllIcon from "@mui/icons-material/DoneAll"
+import { IconButton, Typography } from "@mui/material"
 import Box from "@mui/material/Box"
-import Button from "@mui/material/Button"
 import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid"
+import { Stack } from "@mui/system"
 import {
   DataGrid,
   GridColDef,
@@ -10,6 +11,7 @@ import {
   GridSortDirection,
   GridSortModel,
 } from "@mui/x-data-grid"
+import { FirebaseError } from "firebase/app"
 import { doc, writeBatch } from "firebase/firestore"
 import React, { useContext, useState } from "react"
 import { useNavigate } from "react-router-dom"
@@ -46,7 +48,9 @@ const Component = () => {
 
     batch
       .commit()
-      .catch((err) => console.log(err))
+      .catch((err: FirebaseError) => {
+        appContext?.fireAlert("error", err.message)
+      })
       .finally(() => setAcking(false))
   }
 
@@ -62,9 +66,14 @@ const Component = () => {
     >
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <Typography variant="h5" component="h3">
-            Notifications
-          </Typography>
+          <Stack direction="row">
+            <Typography variant="h5" component="h3" sx={{ flex: 1 }}>
+              <b>Notifications</b>
+            </Typography>
+            <IconButton onClick={ackAllsNotification} disabled={acking}>
+              <DoneAllIcon />
+            </IconButton>
+          </Stack>
         </Grid>
         <Grid item xs={12}>
           <DataGrid
@@ -98,17 +107,6 @@ const Component = () => {
             }}
           />
         </Grid>
-      </Grid>
-      <Grid item xs={6}>
-        <Button
-          fullWidth
-          variant="contained"
-          color="secondary"
-          disabled={acking}
-          onClick={ackAllsNotification}
-        >
-          Dismiss all
-        </Button>
       </Grid>
     </Container>
   )

@@ -1,11 +1,13 @@
 import { Container, CssBaseline, Grid, Typography } from "@mui/material"
+import MuiAlert, { AlertColor, AlertProps } from "@mui/material/Alert"
+import Snackbar from "@mui/material/Snackbar"
 import { createTheme, ThemeProvider } from "@mui/material/styles"
+import { logEvent } from "firebase/analytics"
 import { getAuth, User } from "firebase/auth"
 import {
   collection,
   doc,
   getDoc,
-  setDoc,
   onSnapshot,
   query,
   Timestamp,
@@ -14,44 +16,49 @@ import {
 import React, { useEffect, useState } from "react"
 import { createContext } from "react"
 import { Route, Routes } from "react-router-dom"
-import { logEvent } from "firebase/analytics"
 
-import { db } from "."
+import { analytics, db } from "."
 import { ProtectedRoute } from "./Auth/ProtectedRoute"
 import SignIn from "./Auth/SignIn"
 import SignOut from "./Auth/SignOut"
 import Header from "./Components/Header"
+import { FirestoreCollections } from "./constants"
 import Explanation from "./Pages/Explanation"
 import Home from "./Pages/Home"
 import NotificationDetails from "./Pages/NotificationDetails"
 import Notifications from "./Pages/Notifications"
-import Settings from "./Pages/Settings"
 import Schniff from "./Pages/Schniff"
 import SchniffDetails from "./Pages/SchniffDetails"
-import { analytics } from "."
-import { FirestoreCollections } from "./constants"
+import Settings from "./Pages/Settings"
 
 const brownTheme = createTheme({
   palette: {
     background: {
-      default: "#b06c34",
+      default: "#FFFFFF",
     },
     primary: {
       main: "#000000",
-      contrastText: "#000000",
+      contrastText: "#FFFFFF",
     },
     secondary: {
-      light: "#966c4a",
-      main: "#966c4a",
+      light: "#d5ab9e",
+      main: "#d5ab9e",
       contrastText: "#000000",
     },
   },
   typography: {
     allVariants: {
-      fontFamily: "monospace",
+      fontFamily: "Segoe UI",
       textTransform: "none",
     },
   },
+})
+
+const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
+  props,
+  ref,
+) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
 })
 
 export interface GroundSummary {
@@ -101,13 +108,23 @@ interface AppContextInterface {
   grounds: GroundSummary[]
   user: User | null
   userInformation: UserInformation | null
+  userSettings: UserSettings | null
   monitorRequests: MonitorRequest[]
   notifications: Notification[]
+  fireAlert: Function
 }
 
 export interface UserInformation {
-  Email: string | null
-  FirebaseCloudMessagingTokens: string[]
+  Email: string
+  PhoneNumber: string
+  NotificationsSent: number
+}
+
+export interface UserSettings {
+  FirebaseCloudMessagingTokens: string
+  EmailUnverified: string
+  NotificationsEnabled: number
+  SMSEnabled: boolean
 }
 
 export const AppContext = createContext<AppContextInterface | null>(null)
@@ -115,11 +132,33 @@ export const AppContext = createContext<AppContextInterface | null>(null)
 function App() {
   // get user
   const auth = getAuth()
+
   const [loadingUser, setLoadingUser] = useState(true)
   const [user, setUser] = useState<User | null>(null)
-  const [userInformation, setUserInformation] =
-    useState<UserInformation | null>(null)
-  const [checkedUserInfo, setCheckedUserInfo] = useState(false)
+
+  const handleClose = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string,
+  ) => {
+    if (reason === "clickaway") {
+      return
+    }
+
+    setOpen(false)
+  }
+
+  const [alertSeverity, setAlertSeverity] = useState<AlertColor | undefined>(
+    undefined,
+  )
+  const [alertMessage, setAlertMessage] = useState("")
+  const [open, setOpen] = React.useState(false)
+
+  const FireAlert = (severity: AlertColor, message: string) => {
+    setOpen(false)
+    setAlertSeverity(severity)
+    setAlertMessage(message)
+    setOpen(true)
+  }
 
   // subscribe to user state
   useEffect(() => {
@@ -169,32 +208,6 @@ function App() {
       )
       console.log(monitorRequests)
       setMonitorRequests(monitorRequests)
-
-      // var i = 1
-      // querySnapshot.forEach((doc) => {
-      //   let data = doc.data()
-      //   let dates: Timestamp[] = data.Dates
-      //   newRows.push({
-      //     id: i,
-      //     ground: data.Name,
-      //     start: dates
-      //       .reduce(function (a, b) {
-      //         return a < b ? a : b
-      //       })
-      //       .toDate(),
-      //     end: dates
-      //       .reduce(function (a, b) {
-      //         return a > b ? a : b
-      //       })
-      //       .toDate(),
-      //     groundID: data.Ground,
-      //     docID: doc.id,
-      //   })
-
-      //   i++
-      // })
-
-      // setMonitorRequests(newRows)
     })
 
     return () => unsub()
@@ -234,7 +247,9 @@ function App() {
     return () => unsub()
   }, [user])
 
-  // subscribe to user object (for tokens etc)
+  // subscribe to user object (for verified state, count of total notifications etc)
+  const [userInformation, setUserInformation] =
+    useState<UserInformation | null>(null)
   useEffect(() => {
     if (!user) {
       return
@@ -245,7 +260,6 @@ function App() {
       docRef,
       (doc) => {
         setUserInformation(doc.data() as any as UserInformation)
-        setCheckedUserInfo(true)
       },
       (error: any) => {
         logEvent(analytics, "error subscribing to user object", {
@@ -257,33 +271,37 @@ function App() {
     return () => unsub()
   }, [user])
 
-  // see if the user info does not exist, and if it doesn't, add it
+  // subscribe to user object (for tokens etc)
+  const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
   useEffect(() => {
-    // return if we haven't finished checking user info or have already got user info
-    if (!user || userInformation || !checkedUserInfo) {
+    if (!user) {
       return
     }
 
-    logEvent(analytics, "new user logged in")
+    const docRef = doc(db, FirestoreCollections.USER_SETTINGS, user.uid)
+    const unsub = onSnapshot(
+      docRef,
+      (doc) => {
+        setUserSettings(doc.data() as any as UserSettings)
+      },
+      (error: any) => {
+        logEvent(analytics, "error subscribing to user object", {
+          error: error,
+        })
+      },
+    )
 
-    const docRef = doc(db, FirestoreCollections.USER_INFO, user.uid)
-    const newUserInfo: UserInformation = {
-      FirebaseCloudMessagingTokens: [],
-      Email: user!.email,
-    }
-    setDoc(docRef, newUserInfo).catch((error: any) => {
-      logEvent(analytics, "error updating userinformation on first page load", {
-        error: error,
-      })
-    })
-  }, [userInformation, user, checkedUserInfo])
+    return () => unsub()
+  }, [user])
 
   const appContextValues: AppContextInterface = {
     grounds: campgrounds,
     user: user,
     userInformation: userInformation,
+    userSettings: userSettings,
     monitorRequests: monitorRequests,
     notifications: notifications,
+    fireAlert: FireAlert,
   }
 
   const loadingMessages: string[] = [
@@ -376,6 +394,20 @@ function App() {
           <Route path="signin" element={<SignIn />} />
           <Route path="signout" element={<SignOut />} />
         </Routes>
+        <Snackbar
+          open={open}
+          // autoHideDuration={6000}
+          onClose={handleClose}
+          anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        >
+          <Alert
+            onClose={handleClose}
+            severity={alertSeverity}
+            sx={{ width: "100%" }}
+          >
+            {alertMessage}
+          </Alert>
+        </Snackbar>
       </AppContext.Provider>
     </ThemeProvider>
   )

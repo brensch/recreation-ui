@@ -6,7 +6,6 @@ import Badge from "@mui/material/Badge"
 import Box from "@mui/material/Box"
 import Container from "@mui/material/Container"
 import IconButton from "@mui/material/IconButton"
-import SvgIcon, { SvgIconProps } from "@mui/material/SvgIcon"
 import Toolbar from "@mui/material/Toolbar"
 import Tooltip from "@mui/material/Tooltip"
 import Typography from "@mui/material/Typography"
@@ -14,15 +13,7 @@ import React, { useContext } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 
 import { AppContext } from "../App"
-import { ReactComponent as Logo } from "../logo.svg"
-
-function TentIcon(props: SvgIconProps) {
-  return (
-    <SvgIcon {...props}>
-      <Logo />
-    </SvgIcon>
-  )
-}
+import { ReactComponent as Tent } from "../Assets/tent.svg"
 
 const Component = () => {
   let navigate = useNavigate()
@@ -31,16 +22,17 @@ const Component = () => {
   const appContext = useContext(AppContext)
 
   return (
-    <AppBar
-      position="static"
-      elevation={0}
-      sx={{
-        color: "secondary.main",
-      }}
-    >
+    <AppBar position="static" elevation={0} color="transparent">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
-          <TentIcon sx={{ mr: 1 }} onClick={() => navigate("/")} />
+          {/* <TentIcon sx={{ mr: 1 }} onClick={() => navigate("/")} /> */}
+          <Tent
+            height={30}
+            width={30}
+            style={{ marginRight: 10 }}
+            onClick={() => navigate("/")}
+          />
+
           <Typography
             variant="h5"
             noWrap
@@ -49,7 +41,7 @@ const Component = () => {
             sx={{
               // display: { xs: "flex", md: "none" },
               flexGrow: 1,
-              fontFamily: "monospace",
+              // fontFamily: "monospace",
               fontWeight: 700,
               letterSpacing: ".3rem",
               color: "inherit",
@@ -70,8 +62,11 @@ const Component = () => {
                 }}
               >
                 <Tooltip title="Settings">
-                  <IconButton onClick={() => navigate("/schniff")} sx={{}}>
-                    <ManageSearchIcon sx={{ color: "secondary.light" }} />
+                  <IconButton
+                    onClick={() => navigate("/schniff")}
+                    sx={{ color: "inherit" }}
+                  >
+                    <ManageSearchIcon />
                   </IconButton>
                 </Tooltip>
               </Box>
@@ -86,18 +81,13 @@ const Component = () => {
                 <Tooltip title="See notifications">
                   <IconButton
                     onClick={() => navigate(`/notifications`)}
-                    sx={{ p: 1 }}
+                    sx={{ color: "inherit" }}
                   >
                     <Badge
                       badgeContent={appContext?.notifications.length}
                       color="error"
                     >
-                      <NotificationsNoneIcon
-                        sx={{
-                          color: "secondary.light",
-                          display: "block",
-                        }}
-                      />
+                      <NotificationsNoneIcon />
                     </Badge>
                   </IconButton>
                 </Tooltip>
@@ -113,9 +103,9 @@ const Component = () => {
                 <Tooltip title="Settings">
                   <IconButton
                     onClick={() => navigate("/profile")}
-                    sx={{ p: 1 }}
+                    sx={{ color: "inherit" }}
                   >
-                    <SettingsIcon sx={{ color: "secondary.light" }} />
+                    <SettingsIcon />
                   </IconButton>
                 </Tooltip>
               </Box>

@@ -175,11 +175,13 @@ const Component = () => {
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2" component="h3">
-            There are currently {totalFreeSites} sites available across{" "}
-            {totalFreeDates} days.{" "}
+            There {totalFreeSites === 1 ? "is" : "are"} currently{" "}
+            {totalFreeSites} site{totalFreeSites !== 1 ? "s" : ""} available
+            across {totalFreeDates} day
+            {totalFreeDates !== 1 ? "s" : ""}.{" "}
             {totalFreeSites === 0
               ? "Hopefully someone changes their mind soon."
-              : "We'll keep looking for you in case something better opens up."}
+              : "We'll keep looking for you in case something better opens up, but if you've got a campsite, don't forget to delete this schniff."}
           </Typography>
         </Grid>
 
