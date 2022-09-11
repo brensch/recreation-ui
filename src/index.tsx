@@ -1,3 +1,5 @@
+import "@fontsource/montserrat"
+
 import { LocalizationProvider } from "@mui/x-date-pickers"
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
 import { getAnalytics } from "firebase/analytics"

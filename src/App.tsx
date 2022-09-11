@@ -48,7 +48,9 @@ const brownTheme = createTheme({
   },
   typography: {
     allVariants: {
-      fontFamily: "Segoe UI",
+      // May go back to this one day
+      // fontFamily: "Segoe UI",
+      fontFamily: "Montserrat",
       textTransform: "none",
     },
   },
