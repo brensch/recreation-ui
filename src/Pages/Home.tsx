@@ -37,7 +37,7 @@ const Component = () => {
           </Grid>
           <Grid item xs={12}>
             <Typography variant="h6" component="h2">
-              Tell the schniffer when and where you want to camp, and it'll tell
+              Tell The Schniffer when and where you want to camp, and it'll tell
               you if a site becomes free.
             </Typography>
           </Grid>
