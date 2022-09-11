@@ -37,8 +37,8 @@ const Component = () => {
           </Grid>
           <Grid item xs={12}>
             <Typography variant="h6" component="h2">
-              Tell The Schniffer when and where you want to camp, and it'll tell
-              you if a site becomes free.
+              Tell Schniffer when and where you want to camp, and it'll tell you
+              if a site becomes free.
             </Typography>
           </Grid>
         </Grid>
@@ -133,7 +133,7 @@ const Component = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <Typography variant="body2">
-                      He'll send you an SMS if a site becomes free
+                      Schniffer will send you an SMS if a site becomes free
                     </Typography>
                   </Grid>
                 </Container>
@@ -172,7 +172,7 @@ const Component = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <Typography variant="body2">
-                      Click the link to go to the booking site and book
+                      Follow the link in your notification to book the site.
                     </Typography>
                   </Grid>
                 </Container>
