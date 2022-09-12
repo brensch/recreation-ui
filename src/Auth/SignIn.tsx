@@ -162,74 +162,84 @@ export default function SignIn() {
         </Grid>
       </Container>
       <Box sx={{ width: "100%", backgroundColor: "#222222" }}>
-        <Container
-          component="main"
-          maxWidth="xs"
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            margin: "#222222",
-            padding: 5,
-          }}
-        >
-          {!phoneConfirmation ? (
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <ThemeProvider theme={darkTheme}>
-                  <TextField
-                    variant="standard"
-                    fullWidth
-                    type="tel"
-                    value={phoneNumber}
-                    onChange={(e) =>
-                      setPhoneNumber(formatPhoneNumber(e.target.value))
-                    }
-                    label="Your phone number (US only)"
-                  />
-                </ThemeProvider>
-              </Grid>
+        <form>
+          <Container
+            component="main"
+            maxWidth="xs"
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              margin: "#222222",
+              padding: 5,
+            }}
+          >
+            {!phoneConfirmation ? (
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <ThemeProvider theme={darkTheme}>
+                    <TextField
+                      variant="standard"
+                      fullWidth
+                      type="tel"
+                      value={phoneNumber}
+                      onChange={(e) =>
+                        setPhoneNumber(formatPhoneNumber(e.target.value))
+                      }
+                      label="Your phone number (US only)"
+                    />
+                  </ThemeProvider>
+                </Grid>
 
-              <Grid item xs={12}>
-                <Button
-                  id="phone-sign-in"
-                  fullWidth
-                  variant="contained"
-                  color="secondary"
-                  disabled={!validNumber || verifying}
-                  onClick={sendCode}
-                  sx={{ mt: 3, mb: 2 }}
-                >
-                  Send code
-                </Button>
-              </Grid>
-            </Grid>
-          ) : (
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <ThemeProvider theme={darkTheme}>
-                  <TextField
-                    variant="standard"
+                <Grid item xs={12}>
+                  <Button
+                    id="phone-sign-in"
                     fullWidth
-                    label="Confirmation code, just sent via SMS"
-                    value={confirmationCode}
-                    onChange={(e) => setConfirmationCode(e.target.value)}
-                  />
-                </ThemeProvider>
+                    variant="contained"
+                    color="secondary"
+                    type="submit"
+                    disabled={!validNumber || verifying}
+                    onClick={sendCode}
+                    sx={{ mt: 3, mb: 2 }}
+                  >
+                    Send code
+                  </Button>
+                </Grid>
               </Grid>
-              <Grid item xs={12}>
-                <Button
-                  fullWidth
-                  variant="contained"
-                  color="secondary"
-                  onClick={confirmCode}
-                  sx={{ mt: 3, mb: 2 }}
-                >
-                  Confirm code
-                </Button>
+            ) : (
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <ThemeProvider theme={darkTheme}>
+                    <TextField
+                      variant="standard"
+                      fullWidth
+                      label="Confirmation code, just sent via SMS"
+                      value={confirmationCode}
+                      onChange={(e) => {
+                        e.preventDefault()
+                        setConfirmationCode(e.target.value)
+                      }}
+                    />
+                  </ThemeProvider>
+                </Grid>
+                <Grid item xs={12}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    color="secondary"
+                    type="submit"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      confirmCode()
+                    }}
+                    sx={{ mt: 3, mb: 2 }}
+                  >
+                    Confirm code
+                  </Button>
+                </Grid>
               </Grid>
-            </Grid>
-          )}
-        </Container>
+            )}
+          </Container>
+        </form>
       </Box>
       {/* By mounting and unmounting this we can avoid issues remounting */}
       {verifying && <div id="recaptcha-container" />}
