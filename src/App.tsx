@@ -14,7 +14,8 @@ import {
   Timestamp,
   where,
 } from "firebase/firestore"
-import React, { useEffect, useState, createContext, useCallback } from "react"
+import { getMessaging, onMessage } from "firebase/messaging"
+import React, { createContext, useCallback, useEffect, useState } from "react"
 import { Route, Routes } from "react-router-dom"
 
 import { analytics, db } from "."
@@ -30,7 +31,6 @@ import Notifications from "./Pages/Notifications"
 import Schniff from "./Pages/Schniff"
 import SchniffDetails from "./Pages/SchniffDetails"
 import Settings from "./Pages/Settings"
-import { getMessaging, onMessage } from "firebase/messaging"
 
 const brownTheme = createTheme({
   palette: {
