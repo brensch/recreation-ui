@@ -30,6 +30,7 @@ import Notifications from "./Pages/Notifications"
 import Schniff from "./Pages/Schniff"
 import SchniffDetails from "./Pages/SchniffDetails"
 import Settings from "./Pages/Settings"
+import { getMessaging, onMessage } from "firebase/messaging"
 
 const brownTheme = createTheme({
   palette: {
@@ -312,6 +313,15 @@ function App() {
 
     return () => unsub()
   }, [user, FireAlert])
+
+  // respond to messages we receive while user is looking at site
+  const messaging = getMessaging()
+  onMessage(messaging, (payload) => {
+    FireAlert(
+      "success",
+      "The schniffer found something! Check notifications for details.",
+    )
+  })
 
   // AppContext is used to pass all state we will use throughout multiple views.
   const appContextValues: AppContextInterface = {
