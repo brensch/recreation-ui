@@ -1,5 +1,6 @@
-import { Link, Typography } from "@mui/material"
-import Button from "@mui/material/Button"
+import DoneIcon from "@mui/icons-material/Done"
+import OpenInNewIcon from "@mui/icons-material/OpenInNew"
+import { IconButton, Link, Stack, Typography } from "@mui/material"
 import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid"
 import { DataGrid, GridColDef } from "@mui/x-data-grid"
@@ -52,46 +53,34 @@ const Component = () => {
     >
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <Typography variant="h5" component="h3">
-            {notification?.Title}{" "}
-          </Typography>
+          <Stack direction="row" spacing={2}>
+            <Typography variant="h5" component="h3" sx={{ flex: 1 }}>
+              <b>{notification?.Title}</b>
+            </Typography>
+            <IconButton
+              onClick={() =>
+                window.open(
+                  `https://www.recreation.gov/camping/campgrounds/${notification?.MonitorRequestProcs[0].Delta.GroundID}`,
+                  "_blank",
+                )
+              }
+            >
+              <OpenInNewIcon />
+            </IconButton>
+            <IconButton onClick={ackNotification}>
+              <DoneIcon />
+            </IconButton>
+          </Stack>
         </Grid>
         <Grid item xs={12}>
-          Found at: {notification.Created.toDate().getUTCFullYear()}/
-          {notification.Created.toDate().getUTCMonth()}/
-          {notification.Created.toDate().getUTCDate()},{" "}
-          {notification.Created.toDate().toLocaleTimeString()}
-        </Grid>
-        <Grid item xs={6}>
-          <Button
-            fullWidth
-            variant="contained"
-            color="secondary"
-            onClick={() =>
-              window.open(
-                `https://www.recreation.gov/camping/campgrounds/${notification?.MonitorRequestProcs[0].Delta.GroundID}`,
-                "_blank",
-              )
-            }
-          >
-            See Campground
-          </Button>
-        </Grid>
-        <Grid item xs={6}>
-          <Button
-            fullWidth
-            variant="contained"
-            color="secondary"
-            onClick={ackNotification}
-          >
-            Dismiss
-          </Button>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h5" component="h3">
-            Changes found:
+          <Typography>
+            Found at: {notification.Created.toDate().getUTCFullYear()}/
+            {notification.Created.toDate().getUTCMonth()}/
+            {notification.Created.toDate().getUTCDate()},{" "}
+            {notification.Created.toDate().toLocaleTimeString()}
           </Typography>
         </Grid>
+
         <Grid item xs={12}>
           <DataGrid
             autoHeight
@@ -158,7 +147,7 @@ const columns: GridColDef[] = [
   },
   {
     field: "Visit",
-    headerName: "Links",
+    headerName: "Book",
     // flex: 1,
     renderCell: (params) => {
       let proc: MonitorRequestProc = params.row
@@ -167,7 +156,7 @@ const columns: GridColDef[] = [
           href={`https://www.recreation.gov/camping/campsites/${proc.Delta.SiteID}`}
           target="_blank"
         >
-          See site
+          Book site
         </Link>
       )
     },
