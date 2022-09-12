@@ -44,6 +44,7 @@ export default function SignIn() {
   const [phoneConfirmation, setPhoneConfirmation] =
     useState<ConfirmationResult | null>(null)
   const [validNumber, setValidNumber] = useState(false)
+  const [signingIn, setSigningIn] = useState(false)
 
   const [searchParams] = useSearchParams()
   let redirectTarget = searchParams.get("redirect")
@@ -119,9 +120,13 @@ export default function SignIn() {
 
   const confirmCode = () => {
     if (!phoneConfirmation) return
-    phoneConfirmation.confirm(confirmationCode).catch((error) => {
-      fireAlert("error", error.message)
-    })
+    setSigningIn(true)
+    phoneConfirmation
+      .confirm(confirmationCode)
+      .catch((error) => {
+        fireAlert("error", error.message)
+      })
+      .finally(() => setSigningIn(false))
   }
 
   const redirect = useCallback(() => {
@@ -212,6 +217,7 @@ export default function SignIn() {
                     <TextField
                       variant="standard"
                       fullWidth
+                      type="number"
                       label="Confirmation code, just sent via SMS"
                       value={confirmationCode}
                       onChange={(e) => {
@@ -227,6 +233,7 @@ export default function SignIn() {
                     variant="contained"
                     color="secondary"
                     type="submit"
+                    disabled={signingIn}
                     onClick={(e) => {
                       e.preventDefault()
                       confirmCode()
