@@ -49,10 +49,7 @@ const brownTheme = createTheme({
   },
   typography: {
     allVariants: {
-      // May go back to this one day
-      // fontFamily: "Segoe UI",
       fontFamily: "Montserrat",
-      // textTransform: "none",
     },
   },
 })

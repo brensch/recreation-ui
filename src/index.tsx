@@ -1,9 +1,9 @@
-import "@fontsource/montserrat"
-import { CssBaseline } from "@mui/material"
+import "./index.css"
 
+import { CssBaseline } from "@mui/material"
 import { LocalizationProvider } from "@mui/x-date-pickers"
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
-import { getAnalytics } from "firebase/analytics"
+import { getAnalytics, logEvent } from "firebase/analytics"
 import { initializeApp } from "firebase/app"
 import { getFirestore } from "firebase/firestore"
 import { getMessaging } from "firebase/messaging"
@@ -13,7 +13,9 @@ import { BrowserRouter as Router } from "react-router-dom"
 
 import App from "./App"
 import reportWebVitals from "./reportWebVitals"
+import { Metric } from "web-vitals"
 
+// https://stackoverflow.com/questions/37482366/is-it-safe-to-expose-firebase-apikey-to-the-public/37484053#37484053
 const firebaseConfig = {
   apiKey: "AIzaSyCk41Er_X0TQFnq6UtEXFnM-WHuXmfTd2I",
   authDomain: "campr-app.firebaseapp.com",
@@ -45,4 +47,6 @@ root.render(
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals()
+reportWebVitals((metric: Metric) => {
+  logEvent(analytics, "metric received", metric)
+})

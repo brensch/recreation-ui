@@ -30,6 +30,14 @@ const Component = () => {
   const askForPermissioToReceiveNotifications = () => {
     if (!appContext!.user) return
 
+    if (!("Notification" in window)) {
+      appContext?.fireAlert(
+        "warning",
+        "Your device doesn't support this. Buy an android.",
+      )
+      return
+    }
+
     setLoading(true)
     Notification.requestPermission()
       .then((permission) => {
@@ -71,7 +79,17 @@ const Component = () => {
 
   // check token on page load
   useEffect(() => {
+    // check for crapple
+    if (!("Notification" in window)) {
+      appContext?.fireAlert(
+        "warning",
+        "Web push notifications won't work on your device.",
+      )
+      return
+    }
+
     if (Notification.permission === "default") return
+
     getToken(messaging, {
       vapidKey: VAPIDKEY,
     })
