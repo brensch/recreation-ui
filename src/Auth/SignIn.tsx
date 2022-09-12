@@ -27,8 +27,6 @@ const darkTheme = createTheme({
   },
   typography: {
     allVariants: {
-      // May go back to this one day
-      // fontFamily: "Segoe UI",
       fontFamily: "Montserrat",
       textTransform: "none",
     },
@@ -40,13 +38,11 @@ export default function SignIn() {
   auth.useDeviceLanguage()
   let navigate = useNavigate()
   const appContext = useContext(AppContext)
-
+  let { fireAlert } = appContext!
   const [phoneNumber, setPhoneNumber] = useState<string>("")
   const [confirmationCode, setConfirmationCode] = useState<string>("")
-  const [sendingCode, setSendingCode] = useState(false)
   const [phoneConfirmation, setPhoneConfirmation] =
     useState<ConfirmationResult | null>(null)
-  const [verifier, setVerifier] = useState<RecaptchaVerifier | null>(null)
   const [validNumber, setValidNumber] = useState(false)
 
   const [searchParams] = useSearchParams()
@@ -74,7 +70,8 @@ export default function SignIn() {
       return `(${parsed.slice(0, 3)}) ${parsed.slice(3)}`
     }
 
-    if (phoneNumberLength === 10) setValidNumber(true)
+    // we can set this true since we parse it at the end regardless if it's more than 10
+    if (phoneNumberLength >= 10) setValidNumber(true)
 
     // finally, if the phoneNumberLength is greater then seven, we add the last
     // bit of formatting and return it.
@@ -84,44 +81,46 @@ export default function SignIn() {
     )}`
   }
 
+  // verifications are performed on change of the verifying state.
+  // this is so that we can unload the div that has the recaptcha mounted against it.
+  // if you don't do it this way, verifier.clear() doesn't actually clear.
+  // You still need to kill the DOM object it mounted against or it complains, so
+  // mounting the object it's loading against only when the verifying is requested,
+  // and then only doing the verification in response to the change so that the element
+  // is loaded by the time we instantiate the Recaptcha object is the only way to do this.
+  // Spaghett.
+  const sendCode = () => {
+    setVerifying(true)
+  }
+  const [verifying, setVerifying] = useState(false)
   useEffect(() => {
+    if (!verifying) return
+
     let verifier = new RecaptchaVerifier(
-      "phone-sign-in",
+      "recaptcha-container",
       {
         size: "invisible",
-        "expired-callback": () => {
-          // Response expired. Ask user to solve reCAPTCHA again.
-          // ...
-          appContext?.fireAlert("error", "recaptcha expired. this is strange.")
-        },
       },
       auth,
     )
-    setVerifier(verifier)
-
-    return () => verifier.clear()
-  }, [appContext, auth])
-
-  const sendCode = () => {
-    if (!verifier) return
-    setSendingCode(true)
 
     signInWithPhoneNumber(auth, `+1 ${phoneNumber}`, verifier)
       .then((confirmationResult: ConfirmationResult) => {
         setPhoneConfirmation(confirmationResult)
       })
       .catch((error: FirebaseError) => {
-        appContext?.fireAlert("error", error.message)
+        fireAlert("error", error.message)
       })
       .finally(() => {
-        setSendingCode(false)
+        verifier.clear()
+        setVerifying(false)
       })
-  }
+  }, [verifying, fireAlert, phoneNumber, auth])
 
   const confirmCode = () => {
     if (!phoneConfirmation) return
     phoneConfirmation.confirm(confirmationCode).catch((error) => {
-      appContext?.fireAlert("error", error.message)
+      fireAlert("error", error.message)
     })
   }
 
@@ -196,7 +195,7 @@ export default function SignIn() {
                   fullWidth
                   variant="contained"
                   color="secondary"
-                  disabled={!validNumber || sendingCode}
+                  disabled={!validNumber || verifying}
                   onClick={sendCode}
                   sx={{ mt: 3, mb: 2 }}
                 >
@@ -232,6 +231,8 @@ export default function SignIn() {
           )}
         </Container>
       </Box>
+      {/* By mounting and unmounting this we can avoid issues remounting */}
+      {verifying && <div id="recaptcha-container" />}
     </Box>
   )
 }
