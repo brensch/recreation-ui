@@ -22,6 +22,7 @@ const Component = () => {
   useTitle("profile")
   const [loading, setLoading] = useState(false)
   const appContext = useContext(AppContext)
+  let { fireAlert } = appContext!
   const [token, setToken] = useState<string | null>(null)
   const [deviceEnrolled, setDeviceEnrolled] = useState(false)
   const [smsEnabled, setSMSEnabled] = useState(false)
@@ -31,9 +32,9 @@ const Component = () => {
     if (!appContext!.user) return
 
     if (!("Notification" in window)) {
-      appContext?.fireAlert(
+      fireAlert(
         "warning",
-        "Your device doesn't support this. Buy an android.",
+        "I told you your device doesn't allow web push notifications. Buy an android.",
       )
       return
     }
@@ -61,13 +62,13 @@ const Component = () => {
         ),
       )
       .then(() =>
-        appContext?.fireAlert(
+        fireAlert(
           "success",
           "Nice. You'll now get notifications through your browser on this device when we schniff something for you.",
         ),
       )
       .catch((err) => {
-        appContext?.fireAlert("error", err.toString())
+        fireAlert("error", err.toString())
         logEvent(analytics, "error asking permissions", {
           error: err,
         })
@@ -81,10 +82,7 @@ const Component = () => {
   useEffect(() => {
     // check for crapple
     if (!("Notification" in window)) {
-      appContext?.fireAlert(
-        "warning",
-        "Web push notifications won't work on your device.",
-      )
+      fireAlert("warning", "Web push notifications won't work on your device.")
       return
     }
 
@@ -96,7 +94,7 @@ const Component = () => {
       .then((token) => setToken(token))
       .catch((err: FirebaseError) => {
         if (err.code === "messaging/permission-blocked") {
-          appContext?.fireAlert(
+          fireAlert(
             "warning",
             "You blocked browser notifications on this device. The world is scary, but I'm not scary, I promise.",
           )
@@ -106,7 +104,7 @@ const Component = () => {
           return
         }
 
-        appContext?.fireAlert(
+        fireAlert(
           "error",
           "Something's gone wrong checking your permissions. Not sure what's up.",
         )
@@ -114,7 +112,7 @@ const Component = () => {
           error: err,
         })
       })
-  }, [appContext])
+  }, [fireAlert])
 
   // set the device enrolled state based on whether the current token is in the array already
   useEffect(() => {
@@ -135,13 +133,13 @@ const Component = () => {
       },
     )
       .then(() =>
-        appContext?.fireAlert(
+        fireAlert(
           "warning",
           "This device will no longer receive web push notifications",
         ),
       )
       .catch((err: FirebaseError) => {
-        appContext?.fireAlert("error", err.message)
+        fireAlert("error", err.message)
         logEvent(analytics, "error unenrolling device", {
           error: err,
         })
@@ -158,7 +156,7 @@ const Component = () => {
       },
     )
       .then(() =>
-        appContext?.fireAlert(
+        fireAlert(
           enabled ? "success" : "warning",
           enabled
             ? "SMS notifications enabled"
@@ -166,7 +164,7 @@ const Component = () => {
         ),
       )
       .catch((err) => {
-        appContext?.fireAlert("error", err.toString())
+        fireAlert("error", err.toString())
       })
   }
 

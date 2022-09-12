@@ -14,8 +14,7 @@ import {
   Timestamp,
   where,
 } from "firebase/firestore"
-import React, { useEffect, useState } from "react"
-import { createContext } from "react"
+import React, { useEffect, useState, createContext, useCallback } from "react"
 import { Route, Routes } from "react-router-dom"
 
 import { analytics, db } from "."
@@ -104,6 +103,10 @@ export interface Notification {
   ID: string
 }
 
+interface AlertFunc {
+  (severity: AlertColor, message: string): void
+}
+
 interface AppContextInterface {
   grounds: GroundSummary[]
   user: User | null
@@ -111,7 +114,7 @@ interface AppContextInterface {
   userSettings: UserSettings | null
   monitorRequests: MonitorRequest[]
   notifications: Notification[]
-  fireAlert: Function
+  fireAlert: AlertFunc
 }
 
 export interface UserInformation {
@@ -142,12 +145,12 @@ function App() {
   )
   const [alertMessage, setAlertMessage] = useState("")
   const [open, setOpen] = React.useState(false)
-  const FireAlert = (severity: AlertColor, message: string) => {
+  const FireAlert = useCallback((severity: AlertColor, message: string) => {
     setOpen(false)
     setAlertSeverity(severity)
     setAlertMessage(message)
     setOpen(true)
-  }
+  }, [])
 
   // used by admiral snackbar to prevent closing on click away.
   // user must press x instead, think this is desirable.
@@ -180,7 +183,7 @@ function App() {
       },
     )
     return () => unsubscribe() // unsubscribing from the listener when the component is unmounting.
-  }, [auth])
+  }, [auth, FireAlert])
 
   // get campground list
   const [campgrounds, setCampgrounds] = useState<GroundSummary[]>([])
@@ -204,7 +207,7 @@ function App() {
         FireAlert("error", `Error retrieving campgrounds: ${err.message}`)
       },
     )
-  }, [user])
+  }, [user, FireAlert])
 
   // subscribe to monitors
   const [monitorRequests, setMonitorRequests] = useState<MonitorRequest[]>([])
@@ -233,7 +236,7 @@ function App() {
     )
 
     return () => unsub()
-  }, [user])
+  }, [user, FireAlert])
 
   // subscribe to notifications
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -265,7 +268,7 @@ function App() {
       },
     )
     return () => unsub()
-  }, [user])
+  }, [user, FireAlert])
 
   // subscribe to user object (for verified state, count of total notifications etc)
   const [userInformation, setUserInformation] =
@@ -287,7 +290,7 @@ function App() {
       },
     )
     return () => unsub()
-  }, [user])
+  }, [user, FireAlert])
 
   // subscribe to user object (for tokens etc)
   const [userSettings, setUserSettings] = useState<UserSettings | null>(null)
@@ -308,7 +311,7 @@ function App() {
     )
 
     return () => unsub()
-  }, [user])
+  }, [user, FireAlert])
 
   // AppContext is used to pass all state we will use throughout multiple views.
   const appContextValues: AppContextInterface = {
