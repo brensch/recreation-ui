@@ -253,12 +253,12 @@ const Component = () => {
             <br />
             Web push{" "}
             <Link
-              href="https://9to5mac.com/2022/06/06/ios-16-web-push-notifications-safari-update/"
+              href="https://developer.apple.com/documentation/usernotifications/sending_web_push_notifications_in_safari_and_other_browsers"
               target="_blank"
             >
               is only available from iOS 16
             </Link>
-            , so browser notifications won't work for you.
+            , so get that if you want browser based notifications.
           </Typography>
         </Grid>
       </Grid>
