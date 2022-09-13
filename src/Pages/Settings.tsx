@@ -1,4 +1,5 @@
 import LogoutIcon from "@mui/icons-material/Logout"
+import Button from "@mui/material/Button"
 import Container from "@mui/material/Container"
 import Grid from "@mui/material/Grid"
 import IconButton from "@mui/material/IconButton"
@@ -6,18 +7,17 @@ import Link from "@mui/material/Link"
 import Stack from "@mui/material/Stack"
 import Switch from "@mui/material/Switch"
 import Typography from "@mui/material/Typography"
+import { logEvent } from "firebase/analytics"
 import { FirebaseError } from "firebase/app"
 import { arrayRemove, arrayUnion, doc, updateDoc } from "firebase/firestore"
 import { getToken } from "firebase/messaging"
 import React, { useContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { logEvent } from "firebase/analytics"
-import AddIcon from "@mui/icons-material/Add"
-import { db, messaging, analytics } from ".."
+
+import { analytics, db, messaging } from ".."
 import { AppContext } from "../App"
 import { FirestoreCollections, VAPIDKEY } from "../constants"
 import useTitle from "../useTitle"
-import Button from "@mui/material/Button"
 
 const Component = () => {
   useTitle("profile")
