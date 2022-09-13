@@ -28,7 +28,7 @@ messaging.onBackgroundMessage((payload) => {
   const notificationOptions = {
     body: payload.data.body,
     vibrate: [200, 100, 200, 100, 200, 100, 200],
-    icon: "./favicon-32x32.png",
+    icon: "./android-chrome-512x512.png",
     data: { url: payload.data.url },
     // actions: [{ action: "open_url", title: "View site" }],
   }
