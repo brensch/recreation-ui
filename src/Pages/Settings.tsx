@@ -12,11 +12,12 @@ import { getToken } from "firebase/messaging"
 import React, { useContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { logEvent } from "firebase/analytics"
-
+import AddIcon from "@mui/icons-material/Add"
 import { db, messaging, analytics } from ".."
 import { AppContext } from "../App"
 import { FirestoreCollections, VAPIDKEY } from "../constants"
 import useTitle from "../useTitle"
+import Button from "@mui/material/Button"
 
 const Component = () => {
   useTitle("profile")
@@ -205,17 +206,6 @@ const Component = () => {
         <Grid item xs={12}>
           <Stack direction="row" spacing={2}>
             <Typography variant="body1" component="h3" sx={{ flex: 1 }}>
-              Total SMS Notifications:
-            </Typography>
-            <Typography variant="body1" component="h3" sx={{ pr: 1 }}>
-              {appContext!.userInformation &&
-                appContext!.userInformation!.NotificationsSent}
-            </Typography>
-          </Stack>
-        </Grid>
-        <Grid item xs={12}>
-          <Stack direction="row" spacing={2}>
-            <Typography variant="body1" component="h3" sx={{ flex: 1 }}>
               SMS Notifications:
             </Typography>
             <Switch
@@ -246,6 +236,45 @@ const Component = () => {
               }}
             />
           </Stack>
+        </Grid>
+        <Grid item xs={12}>
+          <Stack direction="row" spacing={2}>
+            <Typography variant="body1" component="h3" sx={{ flex: 1 }}>
+              Total Schniffalarms:
+            </Typography>
+            <Typography variant="body1" component="h3" sx={{ pr: 1 }}>
+              {appContext!.userInformation &&
+                appContext!.userInformation!.NotificationsSent}
+            </Typography>
+          </Stack>
+        </Grid>
+        <Grid item xs={12}>
+          <Stack direction="row" spacing={2}>
+            <Typography variant="body1" component="h3" sx={{ flex: 1 }}>
+              Remaining Schniffalarms:
+            </Typography>
+            <Typography variant="body1" component="h3" sx={{ pr: 1 }}>
+              {appContext!.userInformation &&
+                50 - appContext!.userInformation!.NotificationsSent}
+            </Typography>
+          </Stack>
+        </Grid>
+
+        <Grid item xs={12}>
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="secondary"
+            onClick={() =>
+              window.open(
+                "https://createstripesession-fczsqdxnba-uw.a.run.app?cart=W3siQWRqdXN0YWJsZVF1YW50aXR5IjpudWxsLCJBbW91bnQiOm51bGwsIkN1cnJlbmN5IjpudWxsLCJEZXNjcmlwdGlvbiI6bnVsbCwiRHluYW1pY1RheFJhdGVzIjpudWxsLCJJbWFnZXMiOm51bGwsIk5hbWUiOm51bGwsIlByaWNlIjoicHJpY2VfMUxoVHVnSXNFaHZrajZsa1FmWkhsZmR0IiwiUHJpY2VEYXRhIjpudWxsLCJRdWFudGl0eSI6MTEwLCJUYXhSYXRlcyI6bnVsbH1d",
+                "_self",
+              )
+            }
+          >
+            Buy more schniffalarms
+          </Button>
         </Grid>
         <Grid item xs={12}>
           <Typography variant="body2" component="h2" sx={{ height: "10px" }}>

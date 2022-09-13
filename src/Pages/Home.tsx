@@ -129,11 +129,12 @@ const Component = () => {
                     </SvgIcon>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography variant="h5">Get an SMS</Typography>
+                    <Typography variant="h5">Get Schniffalarmed</Typography>
                   </Grid>
                   <Grid item xs={12}>
                     <Typography variant="body2">
-                      Schniffer will send you an SMS if a site becomes free
+                      Schniffer will send you an SMS and notification if a site
+                      becomes free
                     </Typography>
                   </Grid>
                 </Container>

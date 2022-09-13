@@ -28,6 +28,7 @@ import Explanation from "./Pages/Explanation"
 import Home from "./Pages/Home"
 import NotificationDetails from "./Pages/NotificationDetails"
 import Notifications from "./Pages/Notifications"
+import PaymentComplete from "./Pages/PaymentComplete"
 import Schniff from "./Pages/Schniff"
 import SchniffDetails from "./Pages/SchniffDetails"
 import Settings from "./Pages/Settings"
@@ -417,6 +418,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <NotificationDetails />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="success"
+            element={
+              <ProtectedRoute>
+                <PaymentComplete />
               </ProtectedRoute>
             }
           />
