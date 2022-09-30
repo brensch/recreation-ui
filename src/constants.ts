@@ -6,6 +6,8 @@ export const FirestoreCollections = {
   ENTITY_SUMMARY: "entity_summary",
   SUMMARY_DOC: "summary",
   AVAILABILITY: "availability_by_month",
+  CAMPSITES: "campsites",
+  CAMPGROUNDS: "campgrounds",
 }
 
 export const VAPIDKEY =

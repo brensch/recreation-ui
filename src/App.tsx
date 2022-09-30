@@ -29,11 +29,13 @@ import Home from "./Pages/Home"
 import NotificationDetails from "./Pages/NotificationDetails"
 import Notifications from "./Pages/Notifications"
 import PaymentComplete from "./Pages/PaymentComplete"
+import Setup from "./Pages/Setup"
 import Schniff from "./Pages/Schniff"
 import SchniffDetails from "./Pages/SchniffDetails"
 import Settings from "./Pages/Settings"
+import Search from "./Pages/Search"
 
-const brownTheme = createTheme({
+export const brownTheme = createTheme({
   palette: {
     background: {
       default: "#FFFFFF",
@@ -61,6 +63,63 @@ const Alert = React.forwardRef<HTMLDivElement, AlertProps>(function Alert(
 ) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />
 })
+
+export interface Campground {
+  Source: number
+
+  ID: string
+  AreaID: string
+  AreaName: string
+  Name: string
+  Country: string
+  City: string
+  State: string
+  Org: string
+  Lat: string
+  Lon: string
+
+  Reservable: boolean
+
+  Rating: number
+  NumberOfRatings: number
+
+  ImageURL?: string
+  MaxPrice?: number
+  MinPrice?: number
+  CellCoverage?: number
+
+  Description: string
+
+  Notices: string[]
+  CampMethods: string[]
+  Activities: string[]
+}
+
+export interface Campsite {
+  ID: string
+  Name: string
+  Loop: string
+  Type: string
+
+  Reservable: boolean
+
+  Rating: number
+  NumberOfRatings: number
+
+  ImageURL?: string
+  Campfires?: boolean
+  MinPeople?: number
+  MaxPeople?: number
+  MaxVehicles?: number
+  CheckIn?: number
+  CheckOut?: number
+  Shaded?: boolean
+  CellCoverage?: number
+  ToiletFacts?: string
+
+  Notices: string[]
+  CampMethods: string[]
+}
 
 export interface GroundSummary {
   EntityID: string
@@ -390,6 +449,14 @@ function App() {
             }
           />
           <Route
+            path="setup/:id"
+            element={
+              <ProtectedRoute>
+                <Setup />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="schniff/:id"
             element={
               <ProtectedRoute>
@@ -429,6 +496,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="search" element={<Search />} />
           <Route path="signin" element={<SignIn />} />
           <Route path="signout" element={<SignOut />} />
         </Routes>

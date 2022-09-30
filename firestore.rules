@@ -26,6 +26,12 @@ service cloud.firestore {
     match /availability_by_month/{id} {
       allow read: if request.auth != null;
     }
+    match /campgrounds/{id} {
+      allow read: if request.auth != null;
+    }
+    match /campsites/{id} {
+      allow read: if request.auth != null;
+    }
 
     match /{document=**} {
       allow read, write: if false;

@@ -1,0 +1,12 @@
+[
+    {
+        "site_name": "Site a",
+        "city": "CA",
+        "zip_code": 12345
+    },
+    {
+        "site_name": "Site b",
+        "city": "CA",
+        "zip_code": 12346
+    }
+]

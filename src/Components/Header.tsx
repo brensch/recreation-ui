@@ -11,7 +11,7 @@ import Tooltip from "@mui/material/Tooltip"
 import Typography from "@mui/material/Typography"
 import React, { useContext } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
-
+import MenuIcon from "@mui/icons-material/Menu"
 import { AppContext } from "../App"
 import { ReactComponent as Tent } from "../Assets/tent.svg"
 
@@ -50,8 +50,23 @@ const Component = () => {
           >
             SCHNIFFER
           </Typography>
+          <Box
+            sx={{
+              flexGrow: 0,
+              borderBottom: location.pathname.startsWith("/schniff") ? 2 : 0,
+            }}
+          >
+            <Tooltip title="Settings">
+              <IconButton
+                onClick={() => navigate("/schniff")}
+                sx={{ color: "inherit" }}
+              >
+                <MenuIcon />
+              </IconButton>
+            </Tooltip>
+          </Box>
 
-          {appContext!.user && (
+          {/* {appContext!.user && (
             <React.Fragment>
               <Box
                 sx={{
@@ -110,7 +125,7 @@ const Component = () => {
                 </Tooltip>
               </Box>
             </React.Fragment>
-          )}
+          )} */}
         </Toolbar>
       </Container>
     </AppBar>

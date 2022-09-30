@@ -7,15 +7,19 @@ import SvgIcon from "@mui/material/SvgIcon"
 import Typography from "@mui/material/Typography"
 import React from "react"
 import { useNavigate } from "react-router-dom"
+import TextField from "@mui/material/TextField"
 
 import { ReactComponent as Book } from "../Assets/book.svg"
 import { ReactComponent as Nose } from "../Assets/nose.svg"
 import { ReactComponent as SMS } from "../Assets/sms.svg"
 import useTitle from "../useTitle"
+import InputAdornment from "@mui/material/InputAdornment"
+import IconButton from "@mui/material/IconButton"
+import SearchIcon from "@mui/icons-material/Search"
 
 const Component = () => {
-  let navigate = useNavigate()
   useTitle("")
+  let navigate = useNavigate()
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -26,7 +30,38 @@ const Component = () => {
           display: "flex",
           flexDirection: "column",
           margin: "#222222",
+          "& .MuiTextField-root": { width: "100%" },
+        }}
+      >
+        <TextField
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <IconButton
+                  aria-label="search icon"
+                  // onClick={handleClickShowPassword}
+                  // onMouseDown={handleMouseDownPassword}
+                  edge="end"
+                >
+                  <SearchIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+          placeholder="Find your next adventure"
+          variant="standard"
+          onClick={() => navigate("/search")}
+        />
+      </Container>{" "}
+      <Container
+        component="main"
+        maxWidth="md"
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          margin: "#222222",
           padding: 5,
+          "& .MuiTextField-root": { width: "100%" },
         }}
       >
         <Grid container spacing={2}>
@@ -43,7 +78,7 @@ const Component = () => {
           </Grid>
         </Grid>
       </Container>
-      <Box sx={{ width: "100%", backgroundColor: "#222222" }}>
+      <Box sx={{ width: "100%", backgroundColor: "#d5ab9e" }}>
         <Container
           component="main"
           maxWidth="md"
@@ -56,7 +91,7 @@ const Component = () => {
         >
           <Grid container spacing={2}>
             <Grid item xs={12}>
-              <Typography variant="h4" component="h2" sx={{ color: "#FFFFFF" }}>
+              <Typography variant="h5" component="h2">
                 <b>How does it work?</b>
               </Typography>
             </Grid>
@@ -65,6 +100,7 @@ const Component = () => {
                 sx={{
                   backgroundColor: "#FFFFFF",
                   boxShadow: 5,
+                  height: 200,
                 }}
               >
                 <Container
@@ -105,6 +141,7 @@ const Component = () => {
                 sx={{
                   backgroundColor: "#FFFFFF",
                   boxShadow: 5,
+                  height: 200,
                 }}
               >
                 <Container
@@ -129,12 +166,11 @@ const Component = () => {
                     </SvgIcon>
                   </Grid>
                   <Grid item xs={12}>
-                    <Typography variant="h5">Get Schniffalarmed</Typography>
+                    <Typography variant="h5">Get Notified</Typography>
                   </Grid>
                   <Grid item xs={12}>
                     <Typography variant="body2">
-                      Schniffer will send you an SMS and notification if a site
-                      becomes free
+                      Schniffer will tell you if a site becomes free
                     </Typography>
                   </Grid>
                 </Container>
@@ -145,6 +181,7 @@ const Component = () => {
                 sx={{
                   backgroundColor: "#FFFFFF",
                   boxShadow: 5,
+                  height: 200,
                 }}
               >
                 <Container
