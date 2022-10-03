@@ -102,7 +102,7 @@ const Component = () => {
       }}
     >
       {/* <VerticalLinearStepper /> */}
-      <Grid container spacing={2}>
+      {/* <Grid container spacing={2}>
         <Grid item xs={12}>
           <Typography variant="h5" component="h3">
             <b>Add Schniff</b>
@@ -170,49 +170,49 @@ const Component = () => {
           >
             Schniff
           </Button>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="h5" component="h3">
-            <b>Your Schniffs</b>
-          </Typography>
-        </Grid>
-        <Grid item xs={12}>
-          <DataGrid
-            autoHeight
-            rows={monitorRequests}
-            columns={columns}
-            hideFooterPagination
-            sortModel={sortModel}
-            onSortModelChange={setSortModel}
-            getRowId={(row: MonitorRequest) => row.ID}
-            components={{
-              NoRowsOverlay: CustomNoRowsOverlay,
-            }}
-            onSelectionModelChange={(selection: GridRowId[]) => {
-              if (selection.length === 0) {
-                return
-              }
-
-              navigate(`/schniff/${selection[0]}`)
-            }}
-            sx={{
-              borderColor: "transparent",
-              "& .MuiDataGrid-iconSeparator": {
-                display: "none",
-              },
-              "& .MuiDataGrid-cell": {
-                borderBottom: `1px solid ${"#000000"}`,
-              },
-              "& .MuiDataGrid-columnHeaders": {
-                borderBottom: `2px solid ${"#000000"}`,
-              },
-              "& .MuiDataGrid-footerContainer": {
-                borderTop: `2px solid ${"#000000"}`,
-              },
-            }}
-          />
-        </Grid>
+        </Grid> */}
+      <Grid item xs={12}>
+        <Typography variant="h5" component="h3">
+          <b>Your Schniffs</b>
+        </Typography>
       </Grid>
+      <Grid item xs={12}>
+        <DataGrid
+          autoHeight
+          rows={monitorRequests}
+          columns={columns}
+          hideFooterPagination
+          sortModel={sortModel}
+          onSortModelChange={setSortModel}
+          getRowId={(row: MonitorRequest) => row.ID}
+          components={{
+            NoRowsOverlay: CustomNoRowsOverlay,
+          }}
+          onSelectionModelChange={(selection: GridRowId[]) => {
+            if (selection.length === 0) {
+              return
+            }
+
+            navigate(`/schniff/${selection[0]}`)
+          }}
+          sx={{
+            borderColor: "transparent",
+            "& .MuiDataGrid-iconSeparator": {
+              display: "none",
+            },
+            "& .MuiDataGrid-cell": {
+              borderBottom: `1px solid ${"#000000"}`,
+            },
+            "& .MuiDataGrid-columnHeaders": {
+              borderBottom: `2px solid ${"#000000"}`,
+            },
+            "& .MuiDataGrid-footerContainer": {
+              borderTop: `2px solid ${"#000000"}`,
+            },
+          }}
+        />
+      </Grid>
+      {/* </Grid> */}
     </Container>
   )
 }

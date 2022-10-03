@@ -104,7 +104,7 @@ const Component = () => {
                 }}
               >
                 <Container
-                  onClick={() => navigate("/schniff")}
+                  // onClick={() => navigate("/schniff")}
                   component="main"
                   maxWidth="md"
                   sx={{
@@ -170,7 +170,7 @@ const Component = () => {
                   </Grid>
                   <Grid item xs={12}>
                     <Typography variant="body2">
-                      Schniffer will tell you if a site becomes free
+                      Schniffer will SMS you if a site becomes free
                     </Typography>
                   </Grid>
                 </Container>
@@ -239,7 +239,7 @@ const Component = () => {
             <Link
               variant="h6"
               component="h2"
-              onClick={() => navigate("/schniff")}
+              onClick={() => navigate("/search")}
             >
               Let's get this bread.
             </Link>

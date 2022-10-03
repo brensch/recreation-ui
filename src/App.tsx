@@ -448,14 +448,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="setup/:id"
-            element={
-              <ProtectedRoute>
-                <Setup />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="setup/:id" element={<Setup />} />
           <Route
             path="schniff/:id"
             element={

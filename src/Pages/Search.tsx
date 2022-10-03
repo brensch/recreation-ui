@@ -210,7 +210,12 @@ function RefinementList(props: CustomRefinementListProps) {
                 }}
               >{`${item.label} (${item.count})`}</Typography>
             }
-            sx={{ margin: 0.2 }}
+            sx={{
+              margin: 0.2,
+              "&:focus": {
+                backgroundColor: "none",
+              },
+            }}
             onClick={() => {
               console.log("yo")
               refine(item.value)
