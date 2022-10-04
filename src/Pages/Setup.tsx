@@ -28,6 +28,14 @@ import AccordionSummary from "@mui/material/AccordionSummary"
 import AccordionDetails from "@mui/material/AccordionDetails"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import Chip from "@mui/material/Chip"
+import Table from "@mui/material/Table"
+import TableBody from "@mui/material/TableBody"
+import TableCell from "@mui/material/TableCell"
+import TableContainer from "@mui/material/TableContainer"
+import TableHead from "@mui/material/TableHead"
+import TableRow from "@mui/material/TableRow"
+import Paper from "@mui/material/Paper"
+
 import {
   ConfirmationResult,
   getAuth,
@@ -57,6 +65,7 @@ import {
   getDoc,
   onSnapshot,
   query,
+  setDoc,
   Timestamp,
   where,
 } from "firebase/firestore"
@@ -74,6 +83,7 @@ import {
 import useTitle from "../useTitle"
 import { useNavigate, useParams } from "react-router-dom"
 import { Stack } from "@mui/system"
+import { JsxElement } from "typescript"
 
 const filterOptions = createFilterOptions<GroundSummary>({
   limit: 30,
@@ -95,6 +105,15 @@ interface Grouping {
   Campsites: SelectedCampsite[]
 }
 
+export interface SetupState {
+  SelectedCampground: string
+  SelectedCampsites?: string[]
+  Start?: Timestamp
+  Days?: string
+  Step: number
+  Plan?: number
+}
+
 const Component = () => {
   useTitle("Set up a schniff")
   const appContext = useContext(AppContext)
@@ -112,12 +131,15 @@ const Component = () => {
     SelectedCampsite[]
   >([])
 
+  const [selectedPlan, setSelectedPlan] = useState(0)
+
   const [phoneNumber, setPhoneNumber] = useState<string>("")
   const [confirmationCode, setConfirmationCode] = useState<string>("")
   const [phoneConfirmation, setPhoneConfirmation] =
     useState<ConfirmationResult | null>(null)
   const [validNumber, setValidNumber] = useState(false)
   const [signingIn, setSigningIn] = useState(false)
+  const [startingState, setStartingState] = useState<SetupState | null>(null)
   // const [selectionArray, setSelectionArray] = useState<boolean[]>([])
 
   function formatPhoneNumber(value: string) {
@@ -209,6 +231,7 @@ const Component = () => {
   const ToggleCampsites = useCallback(
     (toggleCampsites: number[], state: boolean) => {
       let selectionArrayClone = [...selectedCampsites]
+
       toggleCampsites.forEach(
         (index) =>
           (selectionArrayClone[index] = {
@@ -259,11 +282,14 @@ const Component = () => {
   }, [relay, relayRefresh])
 
   useEffect(() => {
-    let docID = window.atob(params.id!)
-    console.log(docID)
-    const docRef = doc(db, FirestoreCollections.CAMPGROUNDS, docID)
-    const unsub = onSnapshot(
-      docRef,
+    if (!startingState) return
+    console.log(startingState.SelectedCampground)
+    const docRef = doc(
+      db,
+      FirestoreCollections.CAMPGROUNDS,
+      startingState.SelectedCampground,
+    )
+    getDoc(docRef).then(
       (doc) => {
         setCampground(doc.data() as unknown as Campground)
       },
@@ -274,11 +300,59 @@ const Component = () => {
         fireAlert("error", err.message)
       },
     )
-    return () => unsub()
+  }, [startingState])
+
+  // get starting state
+  useEffect(() => {
+    const docRef = doc(db, FirestoreCollections.SETUPS, params.id!)
+    getDoc(docRef).then(
+      (doc) => {
+        setStartingState(doc.data() as unknown as SetupState)
+      },
+      (err: FirebaseError) => {
+        logEvent(analytics, "error subscribing to campground object", {
+          error: err,
+        })
+        fireAlert("error", err.message)
+      },
+    )
   }, [])
 
+  // try and set all the fields based on the state of the received starting state
   useEffect(() => {
-    let docID = window.atob(params.id!)
+    if (!startingState) return
+
+    if (startingState.Step > 0) setActiveStep(startingState.Step)
+    if (startingState.Start) setStart(startingState.Start.toDate())
+    if (startingState.Days) setDays(startingState.Days)
+    if (startingState.Plan) setSelectedPlan(startingState.Plan)
+  }, [startingState])
+
+  useEffect(() => {
+    if (!startingState) return
+
+    console.log(startingState.SelectedCampground)
+    const docRef = doc(
+      db,
+      FirestoreCollections.CAMPGROUNDS,
+      startingState.SelectedCampground,
+    )
+    getDoc(docRef).then(
+      (doc) => {
+        setCampground(doc.data() as unknown as Campground)
+      },
+      (err: FirebaseError) => {
+        logEvent(analytics, "error subscribing to campground object", {
+          error: err,
+        })
+        fireAlert("error", err.message)
+      },
+    )
+  }, [startingState])
+
+  useEffect(() => {
+    if (!startingState) return
+    let docID = startingState.SelectedCampground
     console.log(docID)
     const docRef = doc(db, FirestoreCollections.CAMPSITES, docID)
     getDoc(docRef).then(
@@ -300,7 +374,10 @@ const Component = () => {
         // initialise selected campsites
         let selectedCampsites = campsites.map((campsite, i) => ({
           index: i,
-          selected: true,
+          selected: !(
+            !!startingState.SelectedCampsites &&
+            !startingState.SelectedCampsites.includes(campsite.ID)
+          ),
 
           ID: campsite.ID,
           Name: campsite.Name,
@@ -318,7 +395,7 @@ const Component = () => {
         fireAlert("error", err.message)
       },
     )
-  }, [])
+  }, [startingState])
 
   if (!campground || !campsites)
     return (
@@ -763,7 +840,14 @@ const Component = () => {
                 </StepContent>
               </Step>
               <Step key="step_3">
-                <StepLabel>Notifications</StepLabel>
+                <StepButton
+                  onClick={() => {
+                    if (activeStep < 3) return
+                    setActiveStep(3)
+                  }}
+                >
+                  Notifications
+                </StepButton>
                 <StepContent>
                   <form>
                     <Container
@@ -879,20 +963,190 @@ const Component = () => {
                   </form>
                 </StepContent>
               </Step>
-              <Step key="step_1">
+              <Step key="step_4">
                 <StepButton
                   onClick={() => {
-                    if (activeStep < 1) return
-                    setActiveStep(1)
+                    if (activeStep < 4) return
+                    setActiveStep(4)
                   }}
                 >
                   Confirm
                 </StepButton>
-                <StepContent>
-                  <Typography variant="body2">
-                    Final step coming soon.
-                  </Typography>
-                </StepContent>
+                {activeStep === 4 && (
+                  <StepContent>
+                    <Grid container>
+                      <Grid item xs={12}>
+                        <TableContainer>
+                          <Table aria-label="simple table" size="small">
+                            <TableBody>
+                              <TableRow key={"row-ground"}>
+                                <TableCell component="th" scope="row">
+                                  Ground
+                                </TableCell>
+                                <TableCell align="right">
+                                  {campground.Name}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow key={"row-dates"}>
+                                <TableCell component="th" scope="row">
+                                  Dates
+                                </TableCell>
+                                <TableCell align="right">
+                                  {start?.toLocaleDateString()}-
+                                  {new Date(
+                                    new Date(start!).setDate(
+                                      start!.getDate() + parseInt(days),
+                                    ),
+                                  ).toLocaleDateString()}
+                                </TableCell>
+                              </TableRow>
+                              <TableRow key={"row-sites"}>
+                                <TableCell component="th" scope="row">
+                                  Sites
+                                </TableCell>
+                                <TableCell align="right">
+                                  {
+                                    selectedCampsites.filter(
+                                      (campsite) => campsite.selected,
+                                    ).length
+                                  }
+                                </TableCell>
+                              </TableRow>
+                              <TableRow key={"row-number"}>
+                                <TableCell component="th" scope="row">
+                                  Number
+                                </TableCell>
+                                <TableCell align="right">
+                                  {appContext?.user?.phoneNumber}
+                                </TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </TableContainer>
+                      </Grid>
+                      <Grid
+                        item
+                        xs={6}
+                        padding={1}
+                        onClick={() => {
+                          setSelectedPlan(0)
+                        }}
+                      >
+                        <Paper
+                          key={"strong-schniff-plan"}
+                          sx={{
+                            backgroundColor:
+                              selectedPlan === 0 ? "#d5ab9e" : "#ffffff",
+                            padding: 1,
+                          }}
+                        >
+                          <Stack direction="row">
+                            <Typography variant="h4">$8</Typography>
+                            <Typography>/mo</Typography>
+                          </Stack>
+                          <Typography variant="body1">Strong Nose</Typography>
+                        </Paper>
+                      </Grid>
+                      <Grid
+                        item
+                        xs={6}
+                        padding={1}
+                        onClick={() => {
+                          setSelectedPlan(1)
+                        }}
+                      >
+                        <Paper
+                          key={"strong-schniff-plan"}
+                          sx={{
+                            backgroundColor:
+                              selectedPlan === 1 ? "#d5ab9e" : "#ffffff",
+                            padding: 1,
+                          }}
+                        >
+                          <Stack direction="row">
+                            <Typography variant="h4">$4</Typography>
+                            <Typography>/mo</Typography>
+                          </Stack>
+                          <Typography variant="body1">Weak Nose</Typography>
+                        </Paper>
+                      </Grid>
+                      <Grid item xs={12} padding={2}>
+                        {PlanDetails[selectedPlan]}
+                      </Grid>
+                      <Grid item xs={12} padding={2}>
+                        <Typography variant="body1" color="#d5ab9e">
+                          Use code "niceschniff" for 50% off your first month
+                        </Typography>
+                      </Grid>
+                      <Grid
+                        item
+                        xs={12}
+                        sx={{ padding: 2, alignContent: "right" }}
+                      >
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          onClick={() => {
+                            let request: StripeRequest = {
+                              Price: PlanIDs[selectedPlan],
+                              Quantity: 1,
+                            }
+                            let reqEncoded = window.btoa(
+                              JSON.stringify([request]),
+                            )
+                            // let startingState = JSON.parse(
+                            //   window.atob(params.id!),
+                            // ) as SetupState
+
+                            let currentState: SetupState = {
+                              SelectedCampground:
+                                startingState!.SelectedCampground,
+                              SelectedCampsites: selectedCampsites
+                                .filter((campsite) => campsite.selected)
+                                .map((campsite) => campsite.ID),
+                              Start: Timestamp.fromDate(start!),
+                              Days: days,
+                              Step: activeStep,
+                              Plan: selectedPlan,
+                            }
+                            // let cancelEncoded = window.btoa(
+                            //   JSON.stringify(currentState),
+                            // )
+                            // console.log(
+                            //   JSON.stringify({
+                            //     LineItems: request,
+                            //     Success: "/success",
+                            //     Cancel: cancelEncoded,
+                            //   }),
+                            // )
+                            // fetch("http://localhost:8000/stripe", {
+                            //   method: "POST",
+                            //   body: JSON.stringify({
+                            //     LineItems: [request],
+                            //     Success: "/success",
+                            //     Cancel: cancelEncoded,
+                            //   }),
+                            //   mode: "cors",
+                            // }).then((res) => console.log(res.body))
+                            let docRef = doc(
+                              db,
+                              FirestoreCollections.SETUPS,
+                              params.id!,
+                            )
+                            setDoc(docRef, currentState).then((doc) => {
+                              window.open(
+                                `http://localhost:8000/stripe?cart=${reqEncoded}&cancel=setup/${params.id!}`,
+                                "_self",
+                              )
+                            })
+                          }}
+                        >
+                          Yes yes yes
+                        </Button>
+                      </Grid>
+                    </Grid>
+                  </StepContent>
+                )}
               </Step>
             </Stepper>
           </Grid>
@@ -901,6 +1155,48 @@ const Component = () => {
       {verifying && <div id="recaptcha-container" />}
     </Box>
   )
+}
+
+const PlanIDs = [
+  "price_1Lp3weIsEhvkj6lkpvaVJUrl",
+  "price_1Lp3xjIsEhvkj6lkgOWwHyAA",
+]
+
+const PlanDetails = [
+  <React.Fragment>
+    <Typography variant="body1">Strong Nose</Typography>
+    <Typography variant="body2">
+      Highly evolved nostrils are trained on your campground, nothing will get
+      by them.
+    </Typography>
+    <Typography variant="body2">
+      <ul>
+        <li>100 SMS per month</li>
+        <li>20 Concurrent Schniffs&trade;</li>
+        <li>Schniffs every 5 minutes</li>
+        <li>Unlimited web push notifications</li>
+      </ul>
+    </Typography>
+  </React.Fragment>,
+  <React.Fragment>
+    <Typography variant="body1">Weak Nose</Typography>
+    <Typography variant="body2">
+      Sometimes unsure if it smells burning or not, but still able to schniff
+      campsites in a pinch.
+    </Typography>
+    <Typography variant="body2">
+      <ul>
+        <li>50 SMS per month</li>
+        <li>10 Concurrent Schniffs&trade;</li>
+        <li>Schniffs every 30 minutes</li>
+      </ul>
+    </Typography>
+  </React.Fragment>,
+]
+
+interface StripeRequest {
+  Price: string
+  Quantity: number
 }
 
 const columns: GridColDef[] = [
@@ -946,7 +1242,7 @@ const CampsiteState = React.memo<CampsiteStateProps>(
               fontSize: 10,
             }}
           >
-            {`${props.Campsite.Name} `}
+            {`${props.Campsite.Name} ${props.Campsite.ID} `}
           </Typography>
         }
         sx={{ margin: 0.2 }}

@@ -8,6 +8,7 @@ export const FirestoreCollections = {
   AVAILABILITY: "availability_by_month",
   CAMPSITES: "campsites",
   CAMPGROUNDS: "campgrounds",
+  SETUPS: "setups",
 }
 
 export const VAPIDKEY =

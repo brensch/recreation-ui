@@ -57,6 +57,10 @@ import CardContent from "@mui/material/CardContent"
 
 import Grid from "@mui/material/Grid"
 import { useNavigate } from "react-router-dom"
+import { SetupState } from "./Setup"
+import { addDoc, collection, doc, setDoc } from "firebase/firestore"
+import { FirestoreCollections } from "../constants"
+import { db } from ".."
 
 function Hits(props: UseHitsProps) {
   const [loading, setLoading] = useState(true)
@@ -80,7 +84,14 @@ function Hits(props: UseHitsProps) {
       hideFooterPagination
       getRowHeight={() => 100}
       onRowClick={(row) => {
-        navigate(`/setup/${window.btoa(row.id as string)}`)
+        let startingState: SetupState = {
+          SelectedCampground: row.id as string,
+          Step: 1,
+        }
+        const collRef = collection(db, FirestoreCollections.SETUPS)
+        addDoc(collRef, startingState).then((doc) => {
+          navigate(`/setup/${doc.id}`)
+        })
         // console.log(window.btoa(row.id as string))
       }}
       // sortModel={sortModel}
