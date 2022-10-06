@@ -119,6 +119,7 @@ const Component = () => {
   const appContext = useContext(AppContext)
   let { fireAlert } = appContext!
   const auth = getAuth()
+  let navigate = useNavigate()
 
   const [campground, setCampground] = useState<Campground | null>(null)
   const [campsites, setCampsites] = useState<Campsite[]>([])
@@ -131,7 +132,7 @@ const Component = () => {
     SelectedCampsite[]
   >([])
 
-  const [selectedPlan, setSelectedPlan] = useState(0)
+  const [selectedPlan, setSelectedPlan] = useState(1)
 
   const [phoneNumber, setPhoneNumber] = useState<string>("")
   const [confirmationCode, setConfirmationCode] = useState<string>("")
@@ -249,6 +250,50 @@ const Component = () => {
     },
     [selectedCampsites],
   )
+
+  function getDates() {
+    var dateArray: Timestamp[] = []
+    var startItr = new Date(start!)
+    startItr.setUTCDate(startItr.getDate())
+    startItr.setUTCHours(0)
+    var end = new Date(start!)
+    end.setDate(startItr.getDate() + Number(days))
+    while (startItr <= end) {
+      dateArray.push(Timestamp.fromDate(startItr))
+      startItr.setDate(startItr.getDate() + 1)
+    }
+
+    return dateArray
+  }
+
+  const submitSchniffRequest = () => {
+    if (!start) {
+      return
+    }
+    // setLoading(true)
+    // create doc first to get its id
+    const docRef = doc(collection(db, "monitor_requests"))
+    const monitor: MonitorRequest = {
+      Dates: getDates(),
+      Ground: campground!.ID,
+      UserID: appContext!.user!.uid,
+      Name: campground!.Name,
+      SiteIDs: selectedCampsites
+        .filter((campsite) => campsite.selected)
+        .map((campsite) => campsite.ID),
+      ID: docRef.id,
+    }
+
+    setDoc(docRef, monitor)
+      .then(() => {
+        appContext?.fireAlert("success", "Successfully added a Schniff")
+        navigate("/schniff")
+      })
+      .finally(() => {
+        // setGround(null)
+        // setLoading(false)
+      })
+  }
 
   // const ToggleCampsite = (index: number) => {
   //   ToggleCampsites([index], !selectedCampsites[index].selected)
@@ -415,6 +460,8 @@ const Component = () => {
         </Grid>
       </Container>
     )
+
+  console.log(appContext?.subscriptions)
 
   return (
     <Box>
@@ -1024,126 +1071,211 @@ const Component = () => {
                           </Table>
                         </TableContainer>
                       </Grid>
-                      <Grid
-                        item
-                        xs={6}
-                        padding={1}
-                        onClick={() => {
-                          setSelectedPlan(0)
-                        }}
-                      >
-                        <Paper
-                          key={"strong-schniff-plan"}
-                          sx={{
-                            backgroundColor:
-                              selectedPlan === 0 ? "#d5ab9e" : "#ffffff",
-                            padding: 1,
-                          }}
-                        >
-                          <Stack direction="row">
-                            <Typography variant="h4">$8</Typography>
-                            <Typography>/mo</Typography>
-                          </Stack>
-                          <Typography variant="body1">Strong Nose</Typography>
-                        </Paper>
-                      </Grid>
-                      <Grid
-                        item
-                        xs={6}
-                        padding={1}
-                        onClick={() => {
-                          setSelectedPlan(1)
-                        }}
-                      >
-                        <Paper
-                          key={"strong-schniff-plan"}
-                          sx={{
-                            backgroundColor:
-                              selectedPlan === 1 ? "#d5ab9e" : "#ffffff",
-                            padding: 1,
-                          }}
-                        >
-                          <Stack direction="row">
-                            <Typography variant="h4">$4</Typography>
-                            <Typography>/mo</Typography>
-                          </Stack>
-                          <Typography variant="body1">Weak Nose</Typography>
-                        </Paper>
-                      </Grid>
-                      <Grid item xs={12} padding={2}>
-                        {PlanDetails[selectedPlan]}
-                      </Grid>
-                      <Grid item xs={12} padding={2}>
-                        <Typography variant="body1" color="#d5ab9e">
-                          Use code "niceschniff" for 50% off your first month
-                        </Typography>
-                      </Grid>
-                      <Grid
-                        item
-                        xs={12}
-                        sx={{ padding: 2, alignContent: "right" }}
-                      >
-                        <Button
-                          variant="contained"
-                          color="secondary"
-                          onClick={() => {
-                            let request: StripeRequest = {
-                              Price: PlanIDs[selectedPlan],
-                              Quantity: 1,
-                            }
-                            let reqEncoded = window.btoa(
-                              JSON.stringify([request]),
-                            )
-                            // let startingState = JSON.parse(
-                            //   window.atob(params.id!),
-                            // ) as SetupState
+                      {appContext?.subscriptions.filter(
+                        (sub) => sub.status === "active",
+                      ).length === 0 ? (
+                        <React.Fragment>
+                          <Grid item xs={12} padding={2}>
+                            <Typography variant="body1" color="#d5ab9e">
+                              <b>
+                                Use code "niceschniff" for 50% off your first
+                                month
+                              </b>
+                            </Typography>
+                          </Grid>
+                          <Grid
+                            item
+                            xs={4}
+                            padding={1}
+                            onClick={() => {
+                              setSelectedPlan(0)
+                            }}
+                          >
+                            <Paper
+                              key={"strong-schniff-plan"}
+                              sx={{
+                                backgroundColor:
+                                  selectedPlan === 0 ? "#d5ab9e" : "#ffffff",
+                                padding: 1,
+                              }}
+                            >
+                              <Stack direction="row" alignItems={"end"}>
+                                <Typography variant="h4">$4</Typography>
+                                <Typography>/mo</Typography>
+                              </Stack>
+                              <Typography variant="body1">Weak</Typography>
+                            </Paper>
+                          </Grid>
+                          <Grid
+                            item
+                            xs={4}
+                            padding={1}
+                            onClick={() => {
+                              setSelectedPlan(1)
+                            }}
+                          >
+                            <Paper
+                              key={"strong-schniff-plan"}
+                              sx={{
+                                backgroundColor:
+                                  selectedPlan === 1 ? "#d5ab9e" : "#ffffff",
+                                padding: 1,
+                              }}
+                            >
+                              <Stack direction="row" alignItems={"end"}>
+                                <Typography variant="h4">$8</Typography>
+                                <Typography>/mo</Typography>
+                              </Stack>
+                              <Typography variant="body1">Strong</Typography>
+                            </Paper>
+                          </Grid>
+                          <Grid
+                            item
+                            xs={4}
+                            padding={1}
+                            onClick={() => {
+                              setSelectedPlan(2)
+                            }}
+                          >
+                            <Paper
+                              key={"strong-schniff-plan"}
+                              sx={{
+                                backgroundColor:
+                                  selectedPlan === 2 ? "#d5ab9e" : "#ffffff",
+                                padding: 1,
+                              }}
+                            >
+                              <Stack direction="row" alignItems={"end"}>
+                                <Typography variant="h4">$15</Typography>
+                                <Typography>/mo</Typography>
+                              </Stack>
+                              <Typography variant="body1">Diamond</Typography>
+                            </Paper>
+                          </Grid>
+                          <Grid item xs={12} padding={2}>
+                            {PlanDetails[selectedPlan]}
+                          </Grid>
+                          <Grid item xs={12} paddingLeft={2}>
+                            <Typography
+                              variant="subtitle1"
+                              sx={{ fontSize: 12 }}
+                            >
+                              All payments are handled through Stripe.
+                            </Typography>
+                          </Grid>
+                          <Grid
+                            item
+                            xs={12}
+                            sx={{ padding: 2, alignContent: "right" }}
+                          >
+                            <Button
+                              variant="contained"
+                              color="secondary"
+                              onClick={() => {
+                                let request: StripeRequest = {
+                                  Price: PlanIDs[selectedPlan].Price,
+                                  Quantity: 1,
+                                }
+                                let reqEncoded = window.btoa(
+                                  JSON.stringify([request]),
+                                )
+                                // let startingState = JSON.parse(
+                                //   window.atob(params.id!),
+                                // ) as SetupState
 
-                            let currentState: SetupState = {
-                              SelectedCampground:
-                                startingState!.SelectedCampground,
-                              SelectedCampsites: selectedCampsites
-                                .filter((campsite) => campsite.selected)
-                                .map((campsite) => campsite.ID),
-                              Start: Timestamp.fromDate(start!),
-                              Days: days,
-                              Step: activeStep,
-                              Plan: selectedPlan,
-                            }
-                            // let cancelEncoded = window.btoa(
-                            //   JSON.stringify(currentState),
-                            // )
-                            // console.log(
-                            //   JSON.stringify({
-                            //     LineItems: request,
-                            //     Success: "/success",
-                            //     Cancel: cancelEncoded,
-                            //   }),
-                            // )
-                            // fetch("http://localhost:8000/stripe", {
-                            //   method: "POST",
-                            //   body: JSON.stringify({
-                            //     LineItems: [request],
-                            //     Success: "/success",
-                            //     Cancel: cancelEncoded,
-                            //   }),
-                            //   mode: "cors",
-                            // }).then((res) => console.log(res.body))
-                            let docRef = doc(
-                              db,
-                              FirestoreCollections.SETUPS,
-                              params.id!,
-                            )
-                            setDoc(docRef, currentState).then((doc) => {
-                              window.open(
-                                `http://localhost:8000/stripe?cart=${reqEncoded}&cancel=setup/${params.id!}`,
-                                "_self",
-                              )
-                            })
-                          }}
-                        >
-                          Yes yes yes
-                        </Button>
-                      </Grid>
+                                let currentState: SetupState = {
+                                  SelectedCampground:
+                                    startingState!.SelectedCampground,
+                                  SelectedCampsites: selectedCampsites
+                                    .filter((campsite) => campsite.selected)
+                                    .map((campsite) => campsite.ID),
+                                  Start: Timestamp.fromDate(start!),
+                                  Days: days,
+                                  Step: activeStep,
+                                  Plan: selectedPlan,
+                                }
+                                // let cancelEncoded = window.btoa(
+                                //   JSON.stringify(currentState),
+                                // )
+                                // console.log(
+                                //   JSON.stringify({
+                                //     LineItems: request,
+                                //     Success: "/success",
+                                //     Cancel: cancelEncoded,
+                                //   }),
+                                // )
+                                // fetch("http://localhost:8000/stripe", {
+                                //   method: "POST",
+                                //   body: JSON.stringify({
+                                //     LineItems: [request],
+                                //     Success: "/success",
+                                //     Cancel: cancelEncoded,
+                                //   }),
+                                //   mode: "cors",
+                                // }).then((res) => console.log(res.body))
+                                let docRef = doc(
+                                  db,
+                                  FirestoreCollections.SETUPS,
+                                  params.id!,
+                                )
+                                setDoc(docRef, currentState).then((doc) => {
+                                  appContext?.user
+                                    ?.getIdToken()
+                                    .then((token) =>
+                                      fetch(
+                                        `https://createcheckoutsession-fczsqdxnba-uw.a.run.app?cart=${reqEncoded}&cancel=setup/${params.id!}&success=setup/${params.id!}`,
+                                        {
+                                          headers: {
+                                            Authorization: `Bearer ${token}`,
+                                          },
+                                        },
+                                      ),
+                                    )
+                                    .then((res) => {
+                                      console.log(res)
+                                      let forwardLocation =
+                                        res.headers.get("X-Stripe")
+                                      console.log(forwardLocation)
+                                      if (!forwardLocation) {
+                                        console.log("no forward location")
+                                        return
+                                      }
+                                      window.open(forwardLocation, "_self")
+                                    })
+                                })
+                              }}
+                            >
+                              Yes yes yes
+                            </Button>
+                          </Grid>
+                        </React.Fragment>
+                      ) : (
+                        <React.Fragment>
+                          <Grid item xs={12} sx={{ padding: 2 }}>
+                            <Typography>
+                              You've got a{" "}
+                              {
+                                PlanIDs.filter(
+                                  (plan) =>
+                                    appContext?.subscriptions.filter(
+                                      (sub) => sub.status === "active",
+                                    )[0].product.id === plan.Product,
+                                )[0].Name
+                              }
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={12} sx={{ padding: 2 }}>
+                            <Button
+                              type="submit"
+                              variant="contained"
+                              color="secondary"
+                              onClick={() => submitSchniffRequest()}
+                            >
+                              Please schniff, oh mighty schniffer
+                            </Button>
+                          </Grid>
+                        </React.Fragment>
+                      )}
                     </Grid>
                   </StepContent>
                 )}
@@ -1157,27 +1289,31 @@ const Component = () => {
   )
 }
 
-const PlanIDs = [
-  "price_1Lp3weIsEhvkj6lkpvaVJUrl",
-  "price_1Lp3xjIsEhvkj6lkgOWwHyAA",
+export const PlanIDs: Plan[] = [
+  {
+    Price: "price_1Lp3xjIsEhvkj6lkgOWwHyAA",
+    Product: "prod_MYAIP2KrOC78qU",
+    Name: "Weak Nose",
+  },
+  {
+    Price: "price_1Lp3weIsEhvkj6lkpvaVJUrl",
+    Product: "prod_MYAHK3Q0O1LdMH",
+    Name: "Strong Nose",
+  },
+  {
+    Price: "price_1Lp7RgIsEhvkj6lkHICgYn4x",
+    Product: "prod_MYDtCLhmuSUilc",
+    Name: "Diamond Nose",
+  },
 ]
 
+interface Plan {
+  Price: string
+  Product: string
+  Name: string
+}
+
 const PlanDetails = [
-  <React.Fragment>
-    <Typography variant="body1">Strong Nose</Typography>
-    <Typography variant="body2">
-      Highly evolved nostrils are trained on your campground, nothing will get
-      by them.
-    </Typography>
-    <Typography variant="body2">
-      <ul>
-        <li>100 SMS per month</li>
-        <li>20 Concurrent Schniffs&trade;</li>
-        <li>Schniffs every 5 minutes</li>
-        <li>Unlimited web push notifications</li>
-      </ul>
-    </Typography>
-  </React.Fragment>,
   <React.Fragment>
     <Typography variant="body1">Weak Nose</Typography>
     <Typography variant="body2">
@@ -1186,9 +1322,46 @@ const PlanDetails = [
     </Typography>
     <Typography variant="body2">
       <ul>
-        <li>50 SMS per month</li>
+        <li>20 SMS per month</li>
         <li>10 Concurrent Schniffs&trade;</li>
         <li>Schniffs every 30 minutes</li>
+        <li>Cancel anytime</li>
+      </ul>
+    </Typography>
+  </React.Fragment>,
+  <React.Fragment>
+    <Typography variant="body1">Strong Nose</Typography>
+    <Typography variant="body2">
+      Highly evolved nostrils are trained on your campground, nothing will get
+      by them.
+    </Typography>
+    <Typography variant="body2">
+      <ul>
+        <li>🌟 Most popular</li>
+        <li>100 SMS per month</li>
+        <li>20 Concurrent Schniffs&trade;</li>
+        <li>Schniffs every 10 minutes</li>
+        <li>Unlimited web push notifications</li>
+        <li>Cancel anytime</li>
+      </ul>
+    </Typography>
+  </React.Fragment>,
+  <React.Fragment>
+    <Typography variant="body1">Diamond Nose</Typography>
+    <Typography variant="body2">
+      The humble consequence of carbon. The fleeting spray of life turned
+      diamond by the sun. It was first seen standing at the edge of the shore
+      between the ancient marks of the high and low tide, a place that is
+      neither land nor sea....
+    </Typography>
+    <Typography variant="body2">
+      <ul>
+        <li>500 SMS per month</li>
+        <li>40 Concurrent Schniffs&trade;</li>
+        <li>Schniffs every 2 minutes</li>
+        <li>Unlimited web push notifications</li>
+        <li>Will send you inspirational quotes occasionally (optional)</li>
+        <li>Cancel anytime</li>
       </ul>
     </Typography>
   </React.Fragment>,
@@ -1242,7 +1415,7 @@ const CampsiteState = React.memo<CampsiteStateProps>(
               fontSize: 10,
             }}
           >
-            {`${props.Campsite.Name} ${props.Campsite.ID} `}
+            {`${props.Campsite.Name}`}
           </Typography>
         }
         sx={{ margin: 0.2 }}

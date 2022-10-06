@@ -9,6 +9,7 @@ export const FirestoreCollections = {
   CAMPSITES: "campsites",
   CAMPGROUNDS: "campgrounds",
   SETUPS: "setups",
+  SUBSCRIPTIONS: "subscriptions",
 }
 
 export const VAPIDKEY =

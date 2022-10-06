@@ -13,11 +13,12 @@ import { arrayRemove, arrayUnion, doc, updateDoc } from "firebase/firestore"
 import { getToken } from "firebase/messaging"
 import React, { useContext, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-
+import Divider from "@mui/material/Divider"
 import { analytics, db, messaging } from ".."
 import { AppContext } from "../App"
 import { FirestoreCollections, VAPIDKEY } from "../constants"
 import useTitle from "../useTitle"
+import { PlanIDs } from "./Setup"
 
 const Component = () => {
   useTitle("profile")
@@ -27,7 +28,12 @@ const Component = () => {
   const [token, setToken] = useState<string | null>(null)
   const [deviceEnrolled, setDeviceEnrolled] = useState(false)
   const [smsEnabled, setSMSEnabled] = useState(false)
+  const [userToken, setUserToken] = useState<string | null>(null)
   let navigate = useNavigate()
+
+  useEffect(() => {
+    appContext?.user?.getIdToken().then(setUserToken)
+  }, [])
 
   const askForPermissioToReceiveNotifications = () => {
     if (!appContext!.user) return
@@ -177,9 +183,9 @@ const Component = () => {
         paddingTop: 2,
         paddingBottom: 2,
         display: "flex",
-        flexDirection: "column",
-        "& .MuiTextField-root": { width: "100%" },
-        "& .MuiTypography-root": { height: "40px" },
+        flexDirection: "row",
+        // "& .MuiTextField-root": { width: "100%" },
+        // "& .MuiTypography-root": { height: "40px" },
       }}
     >
       <Grid container spacing={2}>
@@ -188,20 +194,13 @@ const Component = () => {
             <Typography variant="h5" component="h3" sx={{ flex: 1 }}>
               <b>Settings</b>
             </Typography>
-            <IconButton onClick={() => navigate("/signout")}>
-              <LogoutIcon />
-            </IconButton>
           </Stack>
         </Grid>
+
         <Grid item xs={12}>
-          <Stack direction="row" spacing={2}>
-            <Typography variant="body1" component="h3" sx={{ flex: 1 }}>
-              User ID:
-            </Typography>
-            <Typography variant="body1" component="h3" sx={{ pr: 1 }}>
-              {appContext!.user!.phoneNumber}
-            </Typography>
-          </Stack>
+          <Divider textAlign="left">
+            <Typography variant="body2">SMS</Typography>
+          </Divider>
         </Grid>
         <Grid item xs={12}>
           <Stack direction="row" spacing={2}>
@@ -216,6 +215,33 @@ const Component = () => {
               }}
             />
           </Stack>
+        </Grid>
+        <Grid item xs={12}>
+          <Stack direction="row" spacing={2}>
+            <Typography variant="body1" component="h3" sx={{ flex: 1 }}>
+              Phone number:
+            </Typography>
+            <Typography variant="body1" component="h3" sx={{ pr: 1 }}>
+              {appContext!.user!.phoneNumber}
+            </Typography>
+          </Stack>
+        </Grid>
+
+        <Grid item xs={12}>
+          <Stack direction="row" spacing={2}>
+            <Typography variant="body1" component="h3" sx={{ flex: 1 }}>
+              SMS notifications this month
+            </Typography>
+            <Typography variant="body1" component="h3" sx={{ pr: 1 }}>
+              {appContext!.userInformation &&
+                appContext!.userInformation!.NotificationsSent}
+            </Typography>
+          </Stack>
+        </Grid>
+        <Grid item xs={12}>
+          <Divider textAlign="left">
+            <Typography variant="body2">Web Push</Typography>
+          </Divider>
         </Grid>
         <Grid item xs={12}>
           <Stack direction="row" spacing={2}>
@@ -238,46 +264,7 @@ const Component = () => {
           </Stack>
         </Grid>
         <Grid item xs={12}>
-          <Stack direction="row" spacing={2}>
-            <Typography variant="body1" component="h3" sx={{ flex: 1 }}>
-              Total Schniffalarms:
-            </Typography>
-            <Typography variant="body1" component="h3" sx={{ pr: 1 }}>
-              {appContext!.userInformation &&
-                appContext!.userInformation!.NotificationsSent}
-            </Typography>
-          </Stack>
-        </Grid>
-        <Grid item xs={12}>
-          <Stack direction="row" spacing={2}>
-            <Typography variant="body1" component="h3" sx={{ flex: 1 }}>
-              Remaining Schniffalarms:
-            </Typography>
-            <Typography variant="body1" component="h3" sx={{ pr: 1 }}>
-              {appContext!.userInformation &&
-                50 - appContext!.userInformation!.NotificationsSent}
-            </Typography>
-          </Stack>
-        </Grid>
-
-        <Grid item xs={12}>
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="secondary"
-            onClick={() =>
-              window.open(
-                "https://createstripesession-fczsqdxnba-uw.a.run.app?cart=W3siQWRqdXN0YWJsZVF1YW50aXR5IjpudWxsLCJBbW91bnQiOm51bGwsIkN1cnJlbmN5IjpudWxsLCJEZXNjcmlwdGlvbiI6bnVsbCwiRHluYW1pY1RheFJhdGVzIjpudWxsLCJJbWFnZXMiOm51bGwsIk5hbWUiOm51bGwsIlByaWNlIjoicHJpY2VfMUxoVHVnSXNFaHZrajZsa1FmWkhsZmR0IiwiUHJpY2VEYXRhIjpudWxsLCJRdWFudGl0eSI6MTEwLCJUYXhSYXRlcyI6bnVsbH1d",
-                "_self",
-              )
-            }
-          >
-            Buy more schniffalarms
-          </Button>
-        </Grid>
-        <Grid item xs={12}>
-          <Typography variant="body2" component="h2" sx={{ height: "10px" }}>
+          <Typography variant="body2" component="h2">
             <b>Attention Apple-ists:</b>
             <br />
             Web push{" "}
@@ -289,6 +276,61 @@ const Component = () => {
             </Link>
             , so get that if you want browser based notifications.
           </Typography>
+        </Grid>
+        <Grid item xs={12}>
+          <Divider textAlign="left">
+            <Typography variant="body2">Subscription</Typography>
+          </Divider>
+        </Grid>
+        <Grid item xs={12}>
+          <Stack direction="row" spacing={2}>
+            <Typography variant="body1" component="h3" sx={{ flex: 1 }}>
+              Nose strength
+            </Typography>
+            <Typography variant="body1" component="h3" sx={{ pr: 1 }}>
+              {appContext!.subscriptions.filter(
+                (sub) => sub.status === "active",
+              ).length > 0 &&
+              PlanIDs.filter(
+                (plan) =>
+                  appContext?.subscriptions.filter(
+                    (sub) => sub.status === "active",
+                  )[0].product.id === plan.Product,
+              ).length > 0
+                ? PlanIDs.filter(
+                    (plan) =>
+                      appContext?.subscriptions.filter(
+                        (sub) => sub.status === "active",
+                      )[0].product.id === plan.Product,
+                  )[0].Name
+                : "Noseless"}
+            </Typography>
+          </Stack>
+        </Grid>
+        <Grid item xs={12}>
+          <Button
+            variant="contained"
+            color="secondary"
+            fullWidth
+            onClick={() => {
+              fetch(`https://createportalsession-fczsqdxnba-uw.a.run.app`, {
+                headers: {
+                  Authorization: `Bearer ${userToken}`,
+                },
+              }).then((res) => {
+                console.log(res)
+                let forwardLocation = res.headers.get("X-Stripe")
+                console.log(forwardLocation)
+                if (!forwardLocation) {
+                  console.log("no forward location")
+                  return
+                }
+                window.open(forwardLocation, "_self")
+              })
+            }}
+          >
+            Modify subscription
+          </Button>
         </Grid>
       </Grid>
     </Container>

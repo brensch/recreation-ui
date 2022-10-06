@@ -4,6 +4,9 @@ service cloud.firestore {
     match /users/{user} {
       allow read: if request.auth.uid == user;
     }
+    match /users/{user}/subscriptions/{subscription} {
+      allow read: if request.auth.uid == user;
+    }
     match /users_settings/{user} {
       allow read, write: if request.auth.uid == user;
     }

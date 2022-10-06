@@ -8,6 +8,7 @@ import { getAuth, User } from "firebase/auth"
 import {
   collection,
   doc,
+  DocumentReference,
   getDoc,
   onSnapshot,
   query,
@@ -176,12 +177,14 @@ interface AppContextInterface {
   monitorRequests: MonitorRequest[]
   notifications: Notification[]
   fireAlert: AlertFunc
+  subscriptions: Subscription[]
 }
 
 export interface UserInformation {
-  Email: string
-  PhoneNumber: string
+  email: string
+  phone: string
   NotificationsSent: number
+  stripeId: string
 }
 
 export interface UserSettings {
@@ -189,6 +192,12 @@ export interface UserSettings {
   EmailUnverified: string
   NotificationsEnabled: number
   SMSEnabled: boolean
+}
+
+export interface Subscription {
+  status: string
+  current_period_end: Timestamp
+  product: DocumentReference
 }
 
 export const AppContext = createContext<AppContextInterface | null>(null)
@@ -299,6 +308,42 @@ function App() {
     return () => unsub()
   }, [user, FireAlert])
 
+  // subscribe to subscriptions
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
+  useEffect(() => {
+    if (!user) return
+
+    console.log(
+      FirestoreCollections.USER_INFO,
+      user.uid,
+      FirestoreCollections.SUBSCRIPTIONS,
+    )
+
+    const collRef = collection(
+      db,
+      FirestoreCollections.USER_INFO,
+      user.uid,
+      FirestoreCollections.SUBSCRIPTIONS,
+    )
+    const unsub = onSnapshot(
+      collRef,
+      (snap) => {
+        console.log(snap.docs)
+        setSubscriptions(
+          snap.docs.map((doc) => doc.data() as unknown as Subscription),
+        )
+      },
+      (err: FirebaseError) => {
+        logEvent(analytics, "error subscribing to user object", {
+          error: err,
+        })
+        console.log(err)
+        FireAlert("error", err.message)
+      },
+    )
+    return () => unsub()
+  }, [user, FireAlert])
+
   // subscribe to notifications
   const [notifications, setNotifications] = useState<Notification[]>([])
   useEffect(() => {
@@ -392,6 +437,7 @@ function App() {
     monitorRequests: monitorRequests,
     notifications: notifications,
     fireAlert: FireAlert,
+    subscriptions: subscriptions,
   }
 
   // thought it would be fun to do a different load message on each load
